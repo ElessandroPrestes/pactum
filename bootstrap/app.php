@@ -2,6 +2,8 @@
 
 use App\Http\Middleware\MaskSensitiveData;
 use App\Http\Middleware\TraceId;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -28,6 +30,8 @@ return Application::configure(basePath: dirname(__DIR__))
 
             $status = match (true) {
                 $e instanceof ValidationException => $e->status,
+                $e instanceof AuthenticationException => 401,
+                $e instanceof AuthorizationException => 403,
                 $e instanceof HttpExceptionInterface => $e->getStatusCode(),
                 default => 500,
             };
