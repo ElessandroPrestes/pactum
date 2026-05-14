@@ -7,6 +7,26 @@ on:
     branches: [develop, main]
 
 jobs:
+  commitlint:
+    name: Commitlint
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configura Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Instala commitlint
+        run: npm install --no-save @commitlint/cli @commitlint/config-conventional
+
+      - name: Valida mensagens dos commits do PR
+        run: npx commitlint --from "${{ github.event.pull_request.base.sha }}" --to "${{ github.event.pull_request.head.sha }}" --verbose
+
   quality:
     name: Lint e analise estatica
     runs-on: ubuntu-latest
