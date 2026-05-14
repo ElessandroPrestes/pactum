@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\MaskSensitiveData;
 use App\Http\Middleware\TraceId;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -13,6 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->append(TraceId::class);
+        $middleware->append(MaskSensitiveData::class);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
