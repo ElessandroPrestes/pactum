@@ -8,8 +8,6 @@ A API expõe operações REST sob o prefixo `/api/v1` e segue uma arquitetura em
 camadas — **Controller → Service → Repository** — com foco em separação de
 responsabilidades, regras de negócio extensíveis e qualidade de testes.
 
-> Documento de referência completo do projeto: [`CLAUDE.md`](CLAUDE.md).
-
 ---
 
 ## Funcionalidades
@@ -162,5 +160,5 @@ Service (negócio)  →  orquestra fluxo, aplica invariantes, gerencia transaç�
 Repository (dados) →  interface + implementação Eloquent, centraliza eager loading
 ```
 
-As decisões estruturais e seus trade-offs estão documentados no [`CLAUDE.md`](CLAUDE.md)
-e, futuramente, em ADRs no diretório `docs/adr/`.
+As decisões estruturais e seus trade-offs serão documentados como ADRs no diretório
+`docs/adr/`.
