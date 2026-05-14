@@ -43,6 +43,6 @@ pint:
 	$(APP) vendor/bin/pint
 
 analyse:
-	$(APP) vendor/bin/phpstan analyse
+	$(APP) vendor/bin/phpstan analyse --memory-limit=512M
 
 check: pint analyse test

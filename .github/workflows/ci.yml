@@ -55,7 +55,7 @@ jobs:
         run: vendor/bin/pint --test
 
       - name: PHPStan nivel 8
-        run: vendor/bin/phpstan analyse --no-progress
+        run: vendor/bin/phpstan analyse --no-progress --memory-limit=512M
 
   test:
     name: Testes
