@@ -111,7 +111,7 @@ A API fica disponível em **http://localhost:8000**.
 | `make seed`         | Roda os seeders                                        |
 | `make fresh`        | Recria o banco e roda os seeders                       |
 | `make test`         | Executa a suíte de testes                              |
-| `make test-coverage`| Executa os testes com cobertura mínima de 85%          |
+| `make test-coverage`| Executa os testes com cobertura mínima de 90%          |
 | `make infection`    | Executa o mutation testing                             |
 | `make pint`         | Aplica o code style (Laravel Pint)                     |
 | `make analyse`      | Roda a análise estática (PHPStan nível 8)              |

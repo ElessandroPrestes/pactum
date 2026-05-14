@@ -34,7 +34,7 @@ test:
 	$(APP) php artisan test
 
 test-coverage:
-	$(APP) php artisan test --coverage --min=85
+	$(APP) php artisan test --coverage --min=90
 
 infection:
 	$(APP) vendor/bin/infection --min-msi=70 --min-covered-msi=80
