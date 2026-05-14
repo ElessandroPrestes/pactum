@@ -8,7 +8,6 @@ services:
     working_dir: /var/www/html
     volumes:
       - .:/var/www/html
-      - vendor:/var/www/html/vendor
     depends_on:
       mysql:
         condition: service_healthy
@@ -73,7 +72,6 @@ services:
     command: php artisan queue:work redis --tries=3 --max-time=3600
     volumes:
       - .:/var/www/html
-      - vendor:/var/www/html/vendor
     depends_on:
       mysql:
         condition: service_healthy
@@ -85,7 +83,6 @@ services:
 volumes:
   mysql-data:
   redis-data:
-  vendor:
 
 networks:
   pactum:
