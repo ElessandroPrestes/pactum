@@ -124,9 +124,6 @@ A API fica disponível em **http://localhost:8000**.
 | `make analyse`      | Roda a análise estática (PHPStan nível 8)              |
 | `make check`        | Roda `pint`, `analyse` e `test` em sequência           |
 
-> Os alvos de qualidade (`pint`, `analyse`, `infection`) dependem de ferramentas
-> que são adicionadas ao projeto nas fases seguintes do plano de execução.
-
 ---
 
 ## Estrutura do projeto
@@ -167,5 +164,208 @@ Service (negócio)  →  orquestra fluxo, aplica invariantes, gerencia transaç�
 Repository (dados) →  interface + implementação Eloquent, centraliza eager loading
 ```
 
-As decisões estruturais e seus trade-offs serão documentados como ADRs no diretório
-`docs/adr/`.
+Detalhes em [docs/arquitetura.md](docs/arquitetura.md) (diagrama de camadas e
+fluxo passo a passo de uma request).
+
+---
+
+## Endpoints
+
+Todas as rotas vivem sob `/api/v1` e exigem **Bearer token Sanctum**
+(`Authorization: Bearer <token>`). POSTs em `/clients`, `/contracts` e
+`/contracts/{id}/items` exigem header `Idempotency-Key`.
+
+### Health (sem auth)
+
+| Método | Rota       | Descrição |
+|--------|------------|-----------|
+| GET    | `/health`  | Liveness + readiness (MySQL + Redis). 503 se algum falhar. |
+
+### Clientes
+
+| Método | Rota                  | Notas |
+|--------|-----------------------|-------|
+| GET    | `/api/v1/clients`     | Paginado. Filtros: `status`, `documento`, `nome`. |
+| POST   | `/api/v1/clients`     | Idempotente. Cria sempre com `status=ativo`. |
+| GET    | `/api/v1/clients/{client}` | — |
+| PUT    | `/api/v1/clients/{client}` | — |
+| DELETE | `/api/v1/clients/{client}` | Soft delete. |
+
+### Serviços
+
+| Método | Rota                     | Notas |
+|--------|--------------------------|-------|
+| GET    | `/api/v1/services`       | Paginado. Filtros: `nome`, `ativo`. Cacheado por tag. |
+| POST   | `/api/v1/services`       | Cria sempre com `ativo=true`. |
+| GET    | `/api/v1/services/{service}` | — |
+| PUT    | `/api/v1/services/{service}` | — |
+| DELETE | `/api/v1/services/{service}` | Soft delete. |
+
+### Contratos
+
+| Método | Rota                                                  | Notas |
+|--------|-------------------------------------------------------|-------|
+| GET    | `/api/v1/contracts`                                   | Paginado. Filtros: `client_id`, `status`, `data_inicio`. |
+| POST   | `/api/v1/contracts`                                   | Idempotente. Transacional (contrato + itens). |
+| GET    | `/api/v1/contracts/{contract}`                        | Inclui `itens` e `total_calculado`. |
+| PUT    | `/api/v1/contracts/{contract}`                        | Exige `version` no payload. 409 em conflito. |
+| DELETE | `/api/v1/contracts/{contract}`                        | Soft delete. |
+| POST   | `/api/v1/contracts/{contract}/cancel`                 | Exige `version`. 409 em conflito. |
+| POST   | `/api/v1/contracts/{contract}/items`                  | Idempotente. Invalida cache do total. |
+| DELETE | `/api/v1/contracts/{contract}/items/{item}`           | Invalida cache do total. |
+| GET    | `/api/v1/contracts/{contract}/history`                | Histórico paginado (mais recentes primeiro). |
+
+---
+
+## Exemplos com curl
+
+Exporte o token gerado pelo `DevTokenSeeder` (ou crie um via tinker):
+
+```bash
+export PACTUM_TOKEN=<token>
+```
+
+### Criar um cliente
+
+```bash
+curl -X POST http://localhost:8000/api/v1/clients \
+  -H "Authorization: Bearer $PACTUM_TOKEN" \
+  -H "Accept: application/json" \
+  -H "Content-Type: application/json" \
+  -H "Idempotency-Key: $(uuidgen)" \
+  -d '{
+    "nome": "Acme Ltda",
+    "documento": "11.222.333/0001-81",
+    "tipo_documento": "cnpj",
+    "email": "contato@acme.com"
+  }'
+```
+
+### Criar um contrato com itens (atômico)
+
+```bash
+curl -X POST http://localhost:8000/api/v1/contracts \
+  -H "Authorization: Bearer $PACTUM_TOKEN" \
+  -H "Accept: application/json" \
+  -H "Content-Type: application/json" \
+  -H "Idempotency-Key: $(uuidgen)" \
+  -d '{
+    "client_id": 1,
+    "data_inicio": "2026-01-01",
+    "data_fim": "2027-01-01",
+    "itens": [
+      { "service_id": 1, "quantidade": 5, "valor_unitario": 200.00 }
+    ]
+  }'
+```
+
+### Atualizar um contrato (optimistic lock)
+
+A `version` corrente vem na resposta de GET. Em conflito o servidor responde 409.
+
+```bash
+curl -X PUT http://localhost:8000/api/v1/contracts/1 \
+  -H "Authorization: Bearer $PACTUM_TOKEN" \
+  -H "Accept: application/json" \
+  -H "Content-Type: application/json" \
+  -d '{ "version": 1, "data_fim": "2027-06-30" }'
+```
+
+### Adicionar item a um contrato existente
+
+```bash
+curl -X POST http://localhost:8000/api/v1/contracts/1/items \
+  -H "Authorization: Bearer $PACTUM_TOKEN" \
+  -H "Accept: application/json" \
+  -H "Content-Type: application/json" \
+  -H "Idempotency-Key: $(uuidgen)" \
+  -d '{ "service_id": 2, "quantidade": 1, "valor_unitario": 150.00 }'
+```
+
+### Cancelar um contrato
+
+```bash
+curl -X POST http://localhost:8000/api/v1/contracts/1/cancel \
+  -H "Authorization: Bearer $PACTUM_TOKEN" \
+  -H "Accept: application/json" \
+  -H "Content-Type: application/json" \
+  -d '{ "version": 2 }'
+```
+
+### Consultar histórico
+
+```bash
+curl http://localhost:8000/api/v1/contracts/1/history \
+  -H "Authorization: Bearer $PACTUM_TOKEN" \
+  -H "Accept: application/json"
+```
+
+---
+
+## Troubleshooting
+
+### `make up` trava no MySQL ou retorna conexão recusada
+
+O healthcheck do MySQL tem `start_period` de ~2 minutos na primeira execução. O
+`app` aguarda o MySQL ficar saudável antes de subir. Acompanhe com `make logs` —
+você verá `[MY-010931] [Server] /usr/sbin/mysqld: ready for connections.` quando
+estiver pronto.
+
+### Erro 401 em todas as rotas `/api/v1/*`
+
+Falta o header `Authorization: Bearer <token>`. Gere um token:
+
+```bash
+make shell
+php artisan db:seed --class=DevTokenSeeder
+```
+
+O seeder imprime o token no console — exporte como `PACTUM_TOKEN`.
+
+### Erro 400 com `Header Idempotency-Key e obrigatorio`
+
+POST de `/clients`, `/contracts` e `/contracts/{id}/items` exigem
+`Idempotency-Key`. Gere um UUID por intenção de criação e reutilize **só** em
+retries da mesma operação:
+
+```bash
+-H "Idempotency-Key: $(uuidgen)"
+```
+
+### Erro 409 ao atualizar contrato
+
+Conflito de versão (optimistic lock). Releia o contrato (`GET /contracts/{id}`),
+pegue a `version` corrente e tente de novo.
+
+### Erro 422 com `Contrato cancelado nao pode ser editado`
+
+Invariante de domínio. Contrato cancelado não aceita mutação. Verifique o
+`status` antes de tentar.
+
+### Cobertura de teste local não funciona
+
+O container `app` usa Xdebug. Force o modo `coverage`:
+
+```bash
+docker compose exec -e XDEBUG_MODE=coverage app php artisan test --coverage
+```
+
+### Limpar cache do Redis manualmente
+
+```bash
+make shell
+php artisan cache:clear
+```
+
+Útil quando se mexe diretamente em `contracts` por SQL e o total fica "preso".
+
+---
+
+## Documentação adicional
+
+- [docs/arquitetura.md](docs/arquitetura.md) — camadas, fluxo de request, cache e auditoria.
+- [docs/regras-de-negocio.md](docs/regras-de-negocio.md) — cálculo do total, regras de desconto, invariantes, exemplos numéricos.
+- [docs/como-adicionar-regra-de-desconto.md](docs/como-adicionar-regra-de-desconto.md) — guia passo a passo para estender o cálculo.
+- [docs/decisoes-tecnicas.md](docs/decisoes-tecnicas.md) — sumário das ADRs.
+- [docs/adr/](docs/adr/) — ADRs individuais com contexto, decisão, consequências e alternativas.
+- [docs/melhorias-futuras.md](docs/melhorias-futuras.md) — backlog técnico priorizado.
