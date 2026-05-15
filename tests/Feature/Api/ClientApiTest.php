@@ -13,14 +13,11 @@ describe('ClientApi', function () {
     it('lista clientes paginados', function () {
         Client::factory()->count(3)->create();
 
-        $this->getJson('/api/v1/clients')
+        $resposta = $this->getJson('/api/v1/clients')
             ->assertOk()
-            ->assertJsonCount(3, 'data')
-            ->assertJsonStructure([
-                'data' => [['id', 'nome', 'documento', 'tipo_documento', 'email', 'status']],
-                'links',
-                'meta',
-            ]);
+            ->assertJsonCount(3, 'data');
+
+        $this->assertJsonPaginado($resposta, ['id', 'nome', 'documento', 'tipo_documento', 'email', 'status']);
     });
 
     it('filtra clientes por status', function () {
@@ -97,9 +94,9 @@ describe('ClientApi', function () {
     });
 
     it('retorna 404 para cliente inexistente', function () {
-        $this->getJson('/api/v1/clients/999999')
-            ->assertNotFound()
-            ->assertJsonStructure(['message', 'trace_id']);
+        $this->assertJsonDeErro(
+            $this->getJson('/api/v1/clients/999999')->assertNotFound()
+        );
     });
 
     it('atualiza um cliente', function () {

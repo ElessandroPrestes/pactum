@@ -12,14 +12,11 @@ describe('ServiceApi', function () {
     it('lista servicos paginados', function () {
         Service::factory()->count(3)->create();
 
-        $this->getJson('/api/v1/services')
+        $resposta = $this->getJson('/api/v1/services')
             ->assertOk()
-            ->assertJsonCount(3, 'data')
-            ->assertJsonStructure([
-                'data' => [['id', 'nome', 'valor_base_mensal', 'ativo']],
-                'links',
-                'meta',
-            ]);
+            ->assertJsonCount(3, 'data');
+
+        $this->assertJsonPaginado($resposta, ['id', 'nome', 'valor_base_mensal', 'ativo']);
     });
 
     it('filtra servicos por ativo', function () {
@@ -67,9 +64,9 @@ describe('ServiceApi', function () {
     });
 
     it('retorna 404 para servico inexistente', function () {
-        $this->getJson('/api/v1/services/999999')
-            ->assertNotFound()
-            ->assertJsonStructure(['message', 'trace_id']);
+        $this->assertJsonDeErro(
+            $this->getJson('/api/v1/services/999999')->assertNotFound()
+        );
     });
 
     it('atualiza um servico', function () {
