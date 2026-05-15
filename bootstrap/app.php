@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\MaskSensitiveData;
+use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\TraceId;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
@@ -21,6 +22,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->append(TraceId::class);
         $middleware->append(MaskSensitiveData::class);
+        $middleware->append(SecurityHeaders::class);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         $exceptions->render(function (Throwable $e, Request $request) {
