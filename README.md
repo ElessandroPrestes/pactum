@@ -1,5 +1,12 @@
 # Pactum
 
+[![CI](https://github.com/ElessandroPrestes/pactum/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/ElessandroPrestes/pactum/actions/workflows/ci.yml)
+[![Cobertura](https://img.shields.io/badge/cobertura-%E2%89%A590%25-brightgreen)](https://github.com/ElessandroPrestes/pactum/actions/workflows/ci.yml)
+[![MSI](https://img.shields.io/badge/MSI-%E2%89%A570%25-brightgreen)](https://github.com/ElessandroPrestes/pactum/actions/workflows/ci.yml)
+[![PHP](https://img.shields.io/badge/PHP-8.3-777BB4?logo=php&logoColor=white)](https://www.php.net/)
+[![Laravel](https://img.shields.io/badge/Laravel-11-FF2D20?logo=laravel&logoColor=white)](https://laravel.com)
+[![PHPStan](https://img.shields.io/badge/PHPStan-n%C3%ADvel%208-1abc9c)](https://phpstan.org)
+
 ERP simplificado de **contratos e serviços recorrentes mensais**. O sistema gerencia
 clientes, serviços ofertados, contratos que vinculam os dois e itens dentro de cada
 contrato, com cálculo dinâmico do valor total mensal e regras de desconto extensíveis.
