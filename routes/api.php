@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\V1\ClientController;
+use App\Http\Controllers\Api\V1\ContractController;
 use App\Http\Controllers\Api\V1\ServiceController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -15,4 +16,12 @@ Route::prefix('v1')
     ->group(function () {
         Route::apiResource('clients', ClientController::class);
         Route::apiResource('services', ServiceController::class);
+
+        Route::apiResource('contracts', ContractController::class);
+        Route::post('contracts/{contract}/cancel', [ContractController::class, 'cancel'])
+            ->name('contracts.cancel');
+        Route::post('contracts/{contract}/items', [ContractController::class, 'storeItem'])
+            ->name('contracts.items.store');
+        Route::delete('contracts/{contract}/items/{item}', [ContractController::class, 'destroyItem'])
+            ->name('contracts.items.destroy');
     });
