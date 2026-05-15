@@ -7,6 +7,8 @@ use App\Models\Contract;
 use App\Models\ContractItem;
 use App\Models\Service;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 
 uses(RefreshDatabase::class);
@@ -221,5 +223,137 @@ describe('ContractApi', function () {
         DB::table('contracts')->where('id', $contract->id)->delete();
 
         $this->assertDatabaseMissing('contract_items', ['id' => $item->id]);
+    });
+
+    it('expoe total calculado sem desconto quando contrato nao bate regras', function () {
+        Config::set('contract.descontos.quantidade_progressivo.ativo', false);
+        Config::set('contract.descontos.fidelidade.ativo', false);
+
+        $contract = Contract::factory()->create();
+        ContractItem::factory()->create([
+            'contract_id' => $contract->id,
+            'quantidade' => 2,
+            'valor_unitario' => 150.00,
+        ]);
+
+        $this->getJson("/api/v1/contracts/{$contract->id}")
+            ->assertOk()
+            ->assertJsonPath('data.total_calculado', '300.00');
+    });
+
+    it('expoe total calculado aplicando descontos ativos', function () {
+        $contract = Contract::factory()->create([
+            'data_inicio' => '2026-01-01',
+            'data_fim' => '2027-01-01',
+        ]);
+        ContractItem::factory()->create([
+            'contract_id' => $contract->id,
+            'quantidade' => 5,
+            'valor_unitario' => 200.00,
+        ]);
+
+        $this->getJson("/api/v1/contracts/{$contract->id}")
+            ->assertOk()
+            ->assertJsonPath('data.total_calculado', '883.50');
+    });
+
+    it('cacheia o total do contrato e invalida ao adicionar item', function () {
+        Config::set('contract.descontos.quantidade_progressivo.ativo', false);
+        Config::set('contract.descontos.fidelidade.ativo', false);
+
+        $contract = Contract::factory()->create();
+        ContractItem::factory()->create([
+            'contract_id' => $contract->id,
+            'quantidade' => 1,
+            'valor_unitario' => 100.00,
+        ]);
+
+        $chave = "contract:{$contract->id}:total";
+        expect(Cache::has($chave))->toBeFalse();
+
+        $this->getJson("/api/v1/contracts/{$contract->id}")
+            ->assertOk()
+            ->assertJsonPath('data.total_calculado', '100.00');
+
+        expect(Cache::get($chave))->toBe('100.00');
+
+        $servico = Service::factory()->create();
+        $this->postJson("/api/v1/contracts/{$contract->id}/items", [
+            'service_id' => $servico->id,
+            'quantidade' => 2,
+            'valor_unitario' => 50.00,
+        ])->assertCreated();
+
+        expect(Cache::has($chave))->toBeFalse();
+
+        $this->getJson("/api/v1/contracts/{$contract->id}")
+            ->assertOk()
+            ->assertJsonPath('data.total_calculado', '200.00');
+    });
+
+    it('invalida cache do total ao remover item', function () {
+        Config::set('contract.descontos.quantidade_progressivo.ativo', false);
+        Config::set('contract.descontos.fidelidade.ativo', false);
+
+        $contract = Contract::factory()->create();
+        $item = ContractItem::factory()->create([
+            'contract_id' => $contract->id,
+            'quantidade' => 1,
+            'valor_unitario' => 80.00,
+        ]);
+
+        $chave = "contract:{$contract->id}:total";
+
+        $this->getJson("/api/v1/contracts/{$contract->id}")
+            ->assertJsonPath('data.total_calculado', '80.00');
+        expect(Cache::has($chave))->toBeTrue();
+
+        $this->deleteJson("/api/v1/contracts/{$contract->id}/items/{$item->id}")
+            ->assertNoContent();
+
+        expect(Cache::has($chave))->toBeFalse();
+    });
+
+    it('invalida cache do total ao cancelar contrato substituindo valor stale', function () {
+        Config::set('contract.descontos.quantidade_progressivo.ativo', false);
+        Config::set('contract.descontos.fidelidade.ativo', false);
+
+        $contract = Contract::factory()->create(['version' => 1]);
+        ContractItem::factory()->create([
+            'contract_id' => $contract->id,
+            'quantidade' => 1,
+            'valor_unitario' => 50.00,
+        ]);
+
+        $chave = "contract:{$contract->id}:total";
+        Cache::put($chave, '9999.99', 3600);
+
+        $this->postJson("/api/v1/contracts/{$contract->id}/cancel", ['version' => 1])
+            ->assertOk()
+            ->assertJsonPath('data.total_calculado', '50.00');
+
+        expect(Cache::get($chave))->toBe('50.00');
+    });
+
+    it('invalida cache do total ao atualizar contrato substituindo valor stale', function () {
+        Config::set('contract.descontos.quantidade_progressivo.ativo', false);
+        Config::set('contract.descontos.fidelidade.ativo', false);
+
+        $contract = Contract::factory()->create(['version' => 1]);
+        ContractItem::factory()->create([
+            'contract_id' => $contract->id,
+            'quantidade' => 2,
+            'valor_unitario' => 75.00,
+        ]);
+
+        $chave = "contract:{$contract->id}:total";
+        Cache::put($chave, '0.00', 3600);
+
+        $this->putJson("/api/v1/contracts/{$contract->id}", [
+            'version' => 1,
+            'data_fim' => '2026-12-31',
+        ])
+            ->assertOk()
+            ->assertJsonPath('data.total_calculado', '150.00');
     });
 });
