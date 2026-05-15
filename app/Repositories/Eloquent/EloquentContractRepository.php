@@ -10,6 +10,7 @@ use App\Models\ContractItem;
 use App\Repositories\Contracts\ContractRepositoryInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class EloquentContractRepository implements ContractRepositoryInterface
@@ -73,6 +74,8 @@ class EloquentContractRepository implements ContractRepositoryInterface
         if ($afetadas === 0) {
             throw new ConcurrencyConflictException;
         }
+
+        Cache::forget("contract:{$contract->id}:total");
 
         return $contract->refresh();
     }

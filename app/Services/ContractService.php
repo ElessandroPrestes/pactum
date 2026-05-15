@@ -14,14 +14,51 @@ use App\Models\ContractItem;
 use App\Repositories\Contracts\ClientRepositoryInterface;
 use App\Repositories\Contracts\ContractRepositoryInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class ContractService
 {
     public function __construct(
         private readonly ContractRepositoryInterface $repository,
         private readonly ClientRepositoryInterface $clientRepository,
+        private readonly DiscountCalculator $discountCalculator,
     ) {}
+
+    public function calculateTotal(Contract $contract): string
+    {
+        $callback = fn (): string => $this->discountCalculator->apply(
+            $contract,
+            $this->subtotal($contract),
+        );
+
+        $chave = "contract:{$contract->id}:total";
+        $ttl = (int) config('contract.cache_ttl');
+
+        try {
+            /** @var string $total */
+            $total = Cache::remember($chave, $ttl, $callback);
+
+            return $total;
+        } catch (Throwable) {
+            return $callback();
+        }
+    }
+
+    private function subtotal(Contract $contract): string
+    {
+        $subtotal = '0';
+
+        foreach ($contract->items as $item) {
+            /** @var numeric-string $valorUnitario */
+            $valorUnitario = is_numeric($item->valor_unitario) ? (string) $item->valor_unitario : '0';
+            $linha = bcmul((string) $item->quantidade, $valorUnitario, 6);
+            $subtotal = bcadd($subtotal, $linha, 6);
+        }
+
+        return $subtotal;
+    }
 
     /**
      * @param  array<string, mixed>  $filtros

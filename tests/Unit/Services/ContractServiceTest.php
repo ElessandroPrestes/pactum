@@ -14,6 +14,7 @@ use App\Models\ContractItem;
 use App\Repositories\Contracts\ClientRepositoryInterface;
 use App\Repositories\Contracts\ContractRepositoryInterface;
 use App\Services\ContractService;
+use App\Services\DiscountCalculator;
 use Tests\TestCase;
 
 uses(TestCase::class);
@@ -21,7 +22,12 @@ uses(TestCase::class);
 beforeEach(function () {
     $this->repository = Mockery::mock(ContractRepositoryInterface::class);
     $this->clientRepository = Mockery::mock(ClientRepositoryInterface::class);
-    $this->service = new ContractService($this->repository, $this->clientRepository);
+    $this->discountCalculator = Mockery::mock(DiscountCalculator::class);
+    $this->service = new ContractService(
+        $this->repository,
+        $this->clientRepository,
+        $this->discountCalculator,
+    );
 });
 
 function fakeClient(ClientStatus $status = ClientStatus::Ativo): Client
