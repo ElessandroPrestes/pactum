@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Resources;
 
 use App\Models\Contract;
+use App\Services\ContractService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -27,7 +28,10 @@ class ContractResource extends JsonResource
             'version' => $this->version,
             'client' => ClientResource::make($this->whenLoaded('client')),
             'itens' => ContractItemResource::collection($this->whenLoaded('items')),
-            'total_calculado' => null,
+            'total_calculado' => $this->when(
+                $this->relationLoaded('items'),
+                fn (): string => app(ContractService::class)->calculateTotal($this->resource),
+            ),
             'created_at' => $this->created_at?->toIso8601String(),
             'updated_at' => $this->updated_at?->toIso8601String(),
         ];
