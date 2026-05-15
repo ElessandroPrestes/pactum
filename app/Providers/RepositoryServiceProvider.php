@@ -4,12 +4,17 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Repositories\Contracts\ClientRepositoryInterface;
+use App\Repositories\Eloquent\EloquentClientRepository;
 use Illuminate\Support\ServiceProvider;
 
 class RepositoryServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        //
+        $this->app->bind(
+            ClientRepositoryInterface::class,
+            EloquentClientRepository::class,
+        );
     }
 }
