@@ -108,8 +108,8 @@ jobs:
           cp .env.example .env
           php artisan key:generate
 
-      - name: Executa os testes
-        run: vendor/bin/pest
+      - name: Executa os testes com cobertura minima de 90 por cento
+        run: vendor/bin/pest --coverage --min=90
         env:
           DB_CONNECTION: mysql
           DB_HOST: 127.0.0.1
