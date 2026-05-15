@@ -23,6 +23,8 @@ class ClientController extends ApiController
 
     public function index(Request $request): AnonymousResourceCollection
     {
+        $this->authorize('viewAny', Client::class);
+
         $filtros = $request->only(['status', 'documento', 'nome']);
 
         return ClientResource::collection(
@@ -32,6 +34,8 @@ class ClientController extends ApiController
 
     public function store(StoreClientRequest $request): JsonResponse
     {
+        $this->authorize('create', Client::class);
+
         $client = $this->service->create($request->validated());
 
         return ClientResource::make($client)
@@ -41,11 +45,15 @@ class ClientController extends ApiController
 
     public function show(Client $client): ClientResource
     {
+        $this->authorize('view', $client);
+
         return ClientResource::make($this->service->find($client->id));
     }
 
     public function update(UpdateClientRequest $request, Client $client): ClientResource
     {
+        $this->authorize('update', $client);
+
         return ClientResource::make(
             $this->service->update($client, $request->validated())
         );
@@ -53,6 +61,8 @@ class ClientController extends ApiController
 
     public function destroy(Client $client): Response
     {
+        $this->authorize('delete', $client);
+
         $this->service->delete($client);
 
         return response()->noContent();

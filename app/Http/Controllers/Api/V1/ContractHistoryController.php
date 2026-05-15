@@ -19,6 +19,8 @@ class ContractHistoryController extends ApiController
 
     public function index(Request $request, Contract $contract): AnonymousResourceCollection
     {
+        $this->authorize('viewHistory', $contract);
+
         return ContractHistoryResource::collection(
             $this->service->paginate($contract, $this->perPagina($request))
         );

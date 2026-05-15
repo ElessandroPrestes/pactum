@@ -23,6 +23,8 @@ class ServiceController extends ApiController
 
     public function index(Request $request): AnonymousResourceCollection
     {
+        $this->authorize('viewAny', Service::class);
+
         $filtros = $request->only(['nome']);
 
         if ($request->has('ativo')) {
@@ -36,6 +38,8 @@ class ServiceController extends ApiController
 
     public function store(StoreServiceRequest $request): JsonResponse
     {
+        $this->authorize('create', Service::class);
+
         $service = $this->service->create($request->validated());
 
         return ServiceResource::make($service)
@@ -45,11 +49,15 @@ class ServiceController extends ApiController
 
     public function show(Service $service): ServiceResource
     {
+        $this->authorize('view', $service);
+
         return ServiceResource::make($service);
     }
 
     public function update(UpdateServiceRequest $request, Service $service): ServiceResource
     {
+        $this->authorize('update', $service);
+
         return ServiceResource::make(
             $this->service->update($service, $request->validated())
         );
@@ -57,6 +65,8 @@ class ServiceController extends ApiController
 
     public function destroy(Service $service): Response
     {
+        $this->authorize('delete', $service);
+
         $this->service->delete($service);
 
         return response()->noContent();

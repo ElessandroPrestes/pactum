@@ -27,6 +27,8 @@ class ContractController extends ApiController
 
     public function index(Request $request): AnonymousResourceCollection
     {
+        $this->authorize('viewAny', Contract::class);
+
         $filtros = $request->only(['client_id', 'status', 'data_inicio']);
 
         return ContractResource::collection(
@@ -36,6 +38,8 @@ class ContractController extends ApiController
 
     public function store(StoreContractRequest $request): JsonResponse
     {
+        $this->authorize('create', Contract::class);
+
         /** @var array{client_id: int, data_inicio: string, data_fim?: ?string, itens?: list<array{service_id: int, quantidade: int, valor_unitario: numeric-string|float|int}>} $dados */
         $dados = $request->validated();
 
@@ -48,6 +52,8 @@ class ContractController extends ApiController
 
     public function show(Contract $contract): ContractResource
     {
+        $this->authorize('view', $contract);
+
         $hidratado = $this->service->find($contract->id) ?? $contract;
 
         return ContractResource::make($hidratado);
@@ -55,6 +61,8 @@ class ContractController extends ApiController
 
     public function update(UpdateContractRequest $request, Contract $contract): ContractResource
     {
+        $this->authorize('update', $contract);
+
         $dados = $request->validated();
         $version = (int) $dados['version'];
         unset($dados['version']);
@@ -68,6 +76,8 @@ class ContractController extends ApiController
 
     public function destroy(Contract $contract): Response
     {
+        $this->authorize('delete', $contract);
+
         $this->service->delete($contract);
 
         return response()->noContent();
@@ -75,6 +85,8 @@ class ContractController extends ApiController
 
     public function cancel(CancelContractRequest $request, Contract $contract): ContractResource
     {
+        $this->authorize('cancel', $contract);
+
         $version = (int) $request->validated()['version'];
 
         $cancelado = $this->service->cancel($contract, $version);
@@ -86,6 +98,8 @@ class ContractController extends ApiController
 
     public function storeItem(StoreContractItemRequest $request, Contract $contract): JsonResponse
     {
+        $this->authorize('addItem', $contract);
+
         /** @var array{service_id: int, quantidade: int, valor_unitario: numeric-string|float|int} $dados */
         $dados = $request->validated();
 
@@ -98,6 +112,8 @@ class ContractController extends ApiController
 
     public function destroyItem(Contract $contract, ContractItem $item): Response
     {
+        $this->authorize('removeItem', $contract);
+
         $this->service->removeItem($contract, $item);
 
         return response()->noContent();
