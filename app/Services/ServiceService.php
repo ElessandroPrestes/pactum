@@ -45,6 +45,8 @@ class ServiceService
      */
     public function create(array $dados): Service
     {
+        $dados['ativo'] ??= true;
+
         return $this->repository->create($dados);
     }
 
