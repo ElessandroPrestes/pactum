@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Repositories\Eloquent;
 
 use App\Exceptions\ConcurrencyConflictException;
+use App\Jobs\RegistrarHistoricoContrato;
 use App\Models\Contract;
 use App\Models\ContractItem;
 use App\Repositories\Contracts\ContractRepositoryInterface;
@@ -12,6 +13,7 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class EloquentContractRepository implements ContractRepositoryInterface
 {
@@ -76,6 +78,17 @@ class EloquentContractRepository implements ContractRepositoryInterface
         }
 
         Cache::forget("contract:{$contract->id}:total");
+
+        RegistrarHistoricoContrato::dispatch(
+            $contract->id,
+            'updated',
+            [
+                'changes' => $dados,
+                'version_anterior' => $expectedVersion,
+                'version_nova' => $expectedVersion + 1,
+            ],
+            (string) Str::uuid(),
+        );
 
         return $contract->refresh();
     }
