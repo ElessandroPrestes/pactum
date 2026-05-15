@@ -1,7 +1,9 @@
 DC  = docker compose
 APP = $(DC) exec app
+FRONT = $(DC) exec frontend
 
-.PHONY: up down build shell logs migrate seed fresh test test-coverage infection pint analyse check
+.PHONY: up down build shell logs migrate seed fresh test test-coverage infection pint analyse check \
+	front-shell front-install front-dev front-build front-lint front-test
 
 ## Ambiente
 up:
@@ -46,3 +48,22 @@ analyse:
 	$(APP) vendor/bin/phpstan analyse --memory-limit=512M
 
 check: pint analyse test
+
+## Frontend
+front-shell:
+	$(FRONT) sh
+
+front-install:
+	$(FRONT) npm install
+
+front-dev:
+	$(FRONT) npm run dev -- --host 0.0.0.0
+
+front-build:
+	$(FRONT) npm run build
+
+front-lint:
+	$(FRONT) npm run lint
+
+front-test:
+	$(FRONT) npm run test

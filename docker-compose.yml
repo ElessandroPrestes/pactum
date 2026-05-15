@@ -81,9 +81,30 @@ services:
     networks:
       - pactum
 
+  frontend:
+    build:
+      context: ./frontend
+      target: dev
+    image: pactum-frontend:dev
+    working_dir: /app
+    command: npm run dev -- --host 0.0.0.0
+    environment:
+      VITE_APP_NAME: "${VITE_APP_NAME:-Pactum}"
+      VITE_API_BASE_URL: "${VITE_API_BASE_URL:-http://localhost:8000/api/v1}"
+    ports:
+      - "${FRONTEND_PORT:-5173}:5173"
+    volumes:
+      - ./frontend:/app
+      - frontend-node-modules:/app/node_modules
+    depends_on:
+      - nginx
+    networks:
+      - pactum
+
 volumes:
   mysql-data:
   redis-data:
+  frontend-node-modules:
 
 networks:
   pactum:
