@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Enums\ContractStatus;
+use App\Observers\ContractObserver;
 use Database\Factories\ContractFactory;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -28,6 +30,7 @@ use Illuminate\Support\Carbon;
  * @property-read Client $client
  * @property-read Collection<int, ContractItem> $items
  */
+#[ObservedBy(ContractObserver::class)]
 class Contract extends Model
 {
     /** @use HasFactory<ContractFactory> */
