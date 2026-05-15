@@ -13,15 +13,26 @@ Route::get('/user', function (Request $request) {
 
 Route::prefix('v1')
     ->name('api.v1.')
-    ->middleware('throttle:api')
+    ->middleware(['auth:sanctum', 'throttle:api'])
     ->group(function () {
-        Route::apiResource('clients', ClientController::class);
+        Route::apiResource('clients', ClientController::class)
+            ->only(['index', 'show', 'update', 'destroy']);
+        Route::post('clients', [ClientController::class, 'store'])
+            ->middleware(['throttle:10,1', 'idempotency'])
+            ->name('clients.store');
+
         Route::apiResource('services', ServiceController::class);
 
-        Route::apiResource('contracts', ContractController::class);
+        Route::apiResource('contracts', ContractController::class)
+            ->only(['index', 'show', 'update', 'destroy']);
+        Route::post('contracts', [ContractController::class, 'store'])
+            ->middleware(['throttle:10,1', 'idempotency'])
+            ->name('contracts.store');
         Route::post('contracts/{contract}/cancel', [ContractController::class, 'cancel'])
+            ->middleware('throttle:5,1')
             ->name('contracts.cancel');
         Route::post('contracts/{contract}/items', [ContractController::class, 'storeItem'])
+            ->middleware(['throttle:30,1', 'idempotency'])
             ->name('contracts.items.store');
         Route::delete('contracts/{contract}/items/{item}', [ContractController::class, 'destroyItem'])
             ->name('contracts.items.destroy');
