@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\IdempotencyKey;
 use App\Http\Middleware\MaskSensitiveData;
 use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\TraceId;
@@ -23,6 +24,10 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->append(TraceId::class);
         $middleware->append(MaskSensitiveData::class);
         $middleware->append(SecurityHeaders::class);
+
+        $middleware->alias([
+            'idempotency' => IdempotencyKey::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         $exceptions->render(function (Throwable $e, Request $request) {
