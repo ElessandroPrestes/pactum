@@ -41,7 +41,7 @@ class ClientController extends Controller
 
     public function show(Client $client): ClientResource
     {
-        return ClientResource::make($client);
+        return ClientResource::make($this->service->find($client->id));
     }
 
     public function update(UpdateClientRequest $request, Client $client): ClientResource

@@ -7,14 +7,13 @@ use App\Models\Client;
 use App\Repositories\Contracts\ClientRepositoryInterface;
 use App\Services\ClientService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Tests\TestCase;
+
+uses(TestCase::class);
 
 beforeEach(function () {
     $this->repository = Mockery::mock(ClientRepositoryInterface::class);
     $this->service = new ClientService($this->repository);
-});
-
-afterEach(function () {
-    Mockery::close();
 });
 
 describe('ClientService', function () {
@@ -30,13 +29,26 @@ describe('ClientService', function () {
         expect($this->service->paginate($filtros, 25))->toBe($paginator);
     });
 
-    it('delega a busca por id ao repositorio', function () {
+    it('busca no repositorio quando o cliente nao esta em cache', function () {
         $client = new Client;
 
         $this->repository->shouldReceive('find')
             ->once()
             ->with(7)
             ->andReturn($client);
+
+        expect($this->service->find(7))->toBe($client);
+    });
+
+    it('reutiliza o cache em buscas subsequentes do mesmo cliente', function () {
+        $client = new Client;
+
+        $this->repository->shouldReceive('find')
+            ->once()
+            ->with(7)
+            ->andReturn($client);
+
+        $this->service->find(7);
 
         expect($this->service->find(7))->toBe($client);
     });

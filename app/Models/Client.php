@@ -6,7 +6,9 @@ namespace App\Models;
 
 use App\Enums\ClientStatus;
 use App\Enums\DocumentType;
+use App\Observers\ClientObserver;
 use Database\Factories\ClientFactory;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -24,6 +26,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  */
+#[ObservedBy(ClientObserver::class)]
 class Client extends Model
 {
     /** @use HasFactory<ClientFactory> */

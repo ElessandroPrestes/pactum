@@ -8,6 +8,7 @@ use App\Enums\ClientStatus;
 use App\Models\Client;
 use App\Repositories\Contracts\ClientRepositoryInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Cache;
 
 class ClientService
 {
@@ -26,7 +27,14 @@ class ClientService
 
     public function find(int $id): ?Client
     {
-        return $this->repository->find($id);
+        /** @var Client|null $client */
+        $client = Cache::remember(
+            "client:{$id}",
+            (int) config('client.cache_ttl'),
+            fn () => $this->repository->find($id),
+        );
+
+        return $client;
     }
 
     /**
