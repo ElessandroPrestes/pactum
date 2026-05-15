@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\V1\ClientController;
 use App\Http\Controllers\Api\V1\ContractController;
+use App\Http\Controllers\Api\V1\ContractHistoryController;
 use App\Http\Controllers\Api\V1\ServiceController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -24,4 +25,6 @@ Route::prefix('v1')
             ->name('contracts.items.store');
         Route::delete('contracts/{contract}/items/{item}', [ContractController::class, 'destroyItem'])
             ->name('contracts.items.destroy');
+        Route::get('contracts/{contract}/history', [ContractHistoryController::class, 'index'])
+            ->name('contracts.history.index');
     });
