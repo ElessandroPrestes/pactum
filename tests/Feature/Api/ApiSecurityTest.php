@@ -50,12 +50,27 @@ describe('ApiSecurity', function () {
             ->assertHeader('X-Content-Type-Options', 'nosniff')
             ->assertHeader('X-Frame-Options', 'DENY')
             ->assertHeader('Referrer-Policy', 'no-referrer')
-            ->assertHeader('Content-Security-Policy')
+            ->assertHeader('Content-Security-Policy', "default-src 'none'; frame-ancestors 'none'")
             ->assertHeader('Permissions-Policy')
             ->assertHeader('Cross-Origin-Resource-Policy', 'same-site')
             ->assertHeader('Cross-Origin-Opener-Policy', 'same-origin');
 
         expect($resposta->headers->has('X-Powered-By'))->toBeFalse();
+    });
+
+    it('aplica csp relaxada para respostas html sem quebrar o welcome', function () {
+        $resposta = $this->get('/')->assertOk();
+
+        $csp = (string) $resposta->headers->get('Content-Security-Policy');
+
+        expect($csp)
+            ->toContain("default-src 'self'")
+            ->toContain("frame-ancestors 'none'")
+            ->not->toContain("default-src 'none'");
+
+        $resposta
+            ->assertHeader('X-Content-Type-Options', 'nosniff')
+            ->assertHeader('X-Frame-Options', 'DENY');
     });
 
     it('remove o header server da resposta', function () {
