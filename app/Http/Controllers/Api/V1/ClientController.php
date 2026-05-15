@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\Api\ApiController;
 use App\Http\Requests\StoreClientRequest;
 use App\Http\Requests\UpdateClientRequest;
 use App\Http\Resources\ClientResource;
@@ -15,7 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 
-class ClientController extends Controller
+class ClientController extends ApiController
 {
     public function __construct(
         private readonly ClientService $service,
@@ -26,7 +26,7 @@ class ClientController extends Controller
         $filtros = $request->only(['status', 'documento', 'nome']);
 
         return ClientResource::collection(
-            $this->service->paginate($filtros, $request->integer('per_page', 15))
+            $this->service->paginate($filtros, $this->perPagina($request))
         );
     }
 

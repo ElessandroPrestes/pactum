@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\Api\ApiController;
 use App\Http\Requests\StoreServiceRequest;
 use App\Http\Requests\UpdateServiceRequest;
 use App\Http\Resources\ServiceResource;
@@ -15,7 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 
-class ServiceController extends Controller
+class ServiceController extends ApiController
 {
     public function __construct(
         private readonly ServiceService $service,
@@ -30,7 +30,7 @@ class ServiceController extends Controller
         }
 
         return ServiceResource::collection(
-            $this->service->paginate($filtros, $request->integer('per_page', 15))
+            $this->service->paginate($filtros, $this->perPagina($request))
         );
     }
 
