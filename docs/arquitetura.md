@@ -1,12 +1,22 @@
 # Arquitetura
 
-O Pactum segue uma arquitetura em três camadas — **Controller → Service →
-Repository** — com inversão de dependência via interfaces e separação clara de
-responsabilidades.
+O Pactum é composto por um **backend Laravel** (API REST sob `/api/v1`) e uma
+**SPA Vue 3** que o consome. O backend segue arquitetura em três camadas —
+**Controller → Service → Repository** — com inversão de dependência via
+interfaces. A SPA segue um equivalente de três camadas no front:
+**View → Store (Pinia) → API client (axios)**.
 
-## Diagrama de camadas
+## Diagrama de camadas (end-to-end)
 
 ```
+┌──────────────────────────────────────────────────────────────────────────┐
+│                          Navegador (SPA Vue 3)                           │
+│                                                                          │
+│  View (.vue)  →  Store (Pinia)  →  API client (src/api/*.ts)  →          │
+│                                       └─ axios instance (src/lib/http)   │
+└─────────────────────────────────┬────────────────────────────────────────┘
+                                  │  Bearer token (Sanctum) + Idempotency-Key
+                                  ▼
 ┌──────────────────────────────────────────────────────────────────────────┐
 │                              HTTP (Cliente)                              │
 └─────────────────────────────────┬────────────────────────────────────────┘
@@ -144,3 +154,99 @@ do caminho de escrita.
   diretório `Database/Seeders/ContractSeeder.php` serve de exemplo da pegada.
 - **Nova policy**: adicionar arquivo em `app/Policies/` seguindo a convenção
   `Model\Foo` → `Policies\FooPolicy`. Laravel auto-registra.
+
+---
+
+## Camada SPA (frontend/)
+
+A SPA é Vue 3 + TypeScript + Pinia + Tailwind, justificada na
+[ADR-0007](adr/0007-vue-3-typescript-pinia-tailwind.md).
+
+### Equivalente de três camadas no front
+
+```
+┌──────────────────────────────────────────────────────────────────────────┐
+│  View (src/views/**/*.vue)                                               │
+│                                                                          │
+│  • Apenas template + handlers de UI                                      │
+│  • Estados: loading (skeleton), error (alert), empty (CTA), ready        │
+│  • Forms: validação local + mapeamento de 422 por campo                  │
+│  • Confirmação em acoes destrutivas via AppModal (focus trap)            │
+└─────────────────────────────────┬────────────────────────────────────────┘
+                                  │ usa store
+                                  ▼
+┌──────────────────────────────────────────────────────────────────────────┐
+│  Store (src/stores/*.ts — Pinia)                                         │
+│                                                                          │
+│  • Estado canônico do recurso (items, current, filters, status)          │
+│  • Acoes: fetch, loadOne, create, update, remove, cancel, addItem…       │
+│  • Encapsula optimistic update e refetch em mutações sensíveis           │
+│  • Não conhece axios — só chama o api client                             │
+└─────────────────────────────────┬────────────────────────────────────────┘
+                                  │ chama api/*
+                                  ▼
+┌──────────────────────────────────────────────────────────────────────────┐
+│  API client (src/api/*.ts)                                               │
+│                                                                          │
+│  • Função por endpoint (listContracts, createContract, cancelContract…)  │
+│  • Tipos do retorno espelham o Resource (src/types/*)                    │
+│  • Adiciona Idempotency-Key onde aplicável                               │
+│  • Sem regra de negócio                                                  │
+└─────────────────────────────────┬────────────────────────────────────────┘
+                                  │ via http (singleton)
+                                  ▼
+┌──────────────────────────────────────────────────────────────────────────┐
+│  HTTP layer (src/lib/http.ts)                                            │
+│                                                                          │
+│  • Axios instance única com baseURL + headers                            │
+│  • Request interceptor injeta Bearer token via tokenProvider             │
+│  • Response interceptor converte AxiosError em ApiError tipado           │
+│  • 401 dispara unauthorizedHandler (logout + redirect)                   │
+└──────────────────────────────────────────────────────────────────────────┘
+```
+
+### Fluxo end-to-end — criar contrato pela SPA
+
+1. **View** (`ContractCreateView.vue`) coleta cliente, datas e itens. Validação
+   local impede submit incompleto.
+2. **Store** (`useContractsStore.create`) chama `api.createContract(payload)`.
+3. **API client** (`src/api/contracts.ts`) faz `POST /contracts` com header
+   `Idempotency-Key` gerado por request (uuid).
+4. **HTTP** anexa `Authorization: Bearer <token>` do `useAuthStore`.
+5. **Backend** processa pelo pipeline normal (middleware → controller →
+   service → repository → MySQL/Redis) e retorna o contrato hidratado.
+6. **Store** insere no topo da lista, incrementa `meta.total`, e a view
+   redireciona para `/contratos/:id`.
+7. **Detail view** carrega via `loadOne`, mostra `total_calculado` (que vem do
+   cache Redis do backend) e a timeline de histórico (`loadHistory`).
+
+### Tratamento de erros tipado
+
+`ApiError` (em `src/lib/http.ts`) carrega `status`, `errors` por campo (422),
+`traceId` e mensagem. As views consomem com helpers:
+
+- `ApiError.isValidation` (422) → renderiza erros inline por campo.
+- `ApiError.isConflict` (409) → mostra mensagem de conflito de versão e
+  recarrega o estado atual (caso do cancelamento de contrato).
+- `ApiError.isUnauthorized` (401) → handler global desloga e redireciona.
+
+### Design system
+
+Tokens semânticos em CSS variables (`--color-surface`, `--color-ink`,
+`--color-border`) consumidos pelo Tailwind via `rgb(var(--color-X) /
+<alpha-value>)`. O seletor `.dark` no `<html>` troca os valores — toda a UI
+adapta sem `dark:` espalhado nos componentes.
+
+A escolha do tema (`system` / `light` / `dark`) fica em `localStorage` e é
+aplicada por um script inline no `index.html` antes do bundle carregar, evitando
+flash de tema errado.
+
+### Acessibilidade
+
+- Skip link no `AppShell` (visível ao focar).
+- `:focus-visible` global com `ring-2 ring-brand-500 ring-offset-2`.
+- Modais com focus trap (Tab/Shift+Tab) e restore focus on close.
+- Sidebar mobile fecha com `Escape`.
+- Labels sempre visíveis; obrigatoriedade indicada por `*` aria-hidden + texto
+  sr-only.
+- Breadcrumbs usam `aria-current="page"` na folha.
