@@ -9,14 +9,14 @@ const toasts = computed(() => store.toasts)
 function styles(variant: ToastVariant): string {
     switch (variant) {
         case 'success':
-            return 'border-success-500/40 bg-success-50 text-success-700'
+            return 'border-success-500/40 bg-success-50 text-success-700 dark:bg-success-500/10 dark:text-success-500'
         case 'error':
-            return 'border-danger-500/40 bg-danger-50 text-danger-700'
+            return 'border-danger-500/40 bg-danger-50 text-danger-700 dark:bg-danger-500/10 dark:text-danger-500'
         case 'warning':
-            return 'border-warning-500/40 bg-warning-50 text-warning-700'
+            return 'border-warning-500/40 bg-warning-50 text-warning-700 dark:bg-warning-500/10 dark:text-warning-500'
         case 'info':
         default:
-            return 'border-info-500/40 bg-info-50 text-info-700'
+            return 'border-info-500/40 bg-info-50 text-info-700 dark:bg-info-500/10 dark:text-info-500'
     }
 }
 

@@ -6,6 +6,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="light dark" />
     <title>Pactum</title>
+    <script>
+      (function () {
+        try {
+          var stored = localStorage.getItem('pactum:theme')
+          var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+          var theme = stored === 'light' || stored === 'dark' ? stored : 'system'
+          var effective = theme === 'system' ? (prefersDark ? 'dark' : 'light') : theme
+          if (effective === 'dark') {
+            document.documentElement.classList.add('dark')
+          }
+        } catch (err) {
+          /* fallback silencioso */
+        }
+      })()
+    </script>
   </head>
   <body>
     <div id="app"></div>

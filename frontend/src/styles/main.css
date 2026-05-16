@@ -6,10 +6,26 @@
     :root {
         color-scheme: light;
         --pactum-focus: theme('colors.brand.500');
+        --color-surface: 255 255 255;
+        --color-surface-muted: 246 247 251;
+        --color-surface-subtle: 238 240 246;
+        --color-ink: 15 23 42;
+        --color-ink-muted: 71 85 105;
+        --color-ink-subtle: 100 116 139;
+        --color-border: 226 232 240;
+        --color-border-strong: 203 213 225;
     }
 
     .dark {
         color-scheme: dark;
+        --color-surface: 17 24 39;
+        --color-surface-muted: 11 16 32;
+        --color-surface-subtle: 30 41 59;
+        --color-ink: 248 250 252;
+        --color-ink-muted: 203 213 225;
+        --color-ink-subtle: 148 163 184;
+        --color-border: 51 65 85;
+        --color-border-strong: 71 85 105;
     }
 
     html {
@@ -23,10 +39,6 @@
         @apply min-h-screen bg-surface-muted font-sans text-ink antialiased;
     }
 
-    .dark body {
-        @apply bg-surface-inverted text-ink-inverted;
-    }
-
     h1,
     h2,
     h3,
@@ -34,19 +46,8 @@
         @apply font-semibold tracking-tight text-ink;
     }
 
-    .dark h1,
-    .dark h2,
-    .dark h3,
-    .dark h4 {
-        @apply text-ink-inverted;
-    }
-
     :where(a, button, input, select, textarea, [tabindex]):focus-visible {
         @apply outline-none ring-2 ring-brand-500 ring-offset-2 ring-offset-surface;
-    }
-
-    .dark :where(a, button, input, select, textarea, [tabindex]):focus-visible {
-        @apply ring-offset-surface-inverted;
     }
 }
 
@@ -61,5 +62,18 @@
 
     .pactum-divider {
         @apply h-px w-full bg-border;
+    }
+
+    .pactum-alert-danger {
+        @apply rounded-md border border-danger-500/40 bg-danger-50 px-3 py-2 text-sm text-danger-700 dark:bg-danger-500/10 dark:text-danger-500;
+    }
+
+    .pactum-alert-warning {
+        @apply rounded-md border border-warning-500/40 bg-warning-50 px-3 py-2 text-sm text-warning-700 dark:bg-warning-500/10 dark:text-warning-500;
+    }
+
+    .pactum-nav-active::before {
+        content: '';
+        @apply absolute inset-y-1 left-0 w-0.5 rounded-r bg-brand-600 dark:bg-brand-400;
     }
 }

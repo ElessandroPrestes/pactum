@@ -34,20 +34,20 @@ export default {
                     950: '#131c4a',
                 },
                 surface: {
-                    DEFAULT: '#ffffff',
-                    muted: '#f6f7fb',
-                    subtle: '#eef0f6',
+                    DEFAULT: 'rgb(var(--color-surface) / <alpha-value>)',
+                    muted: 'rgb(var(--color-surface-muted) / <alpha-value>)',
+                    subtle: 'rgb(var(--color-surface-subtle) / <alpha-value>)',
                     inverted: '#0b1020',
                 },
                 ink: {
-                    DEFAULT: '#0f172a',
-                    muted: '#475569',
-                    subtle: '#64748b',
+                    DEFAULT: 'rgb(var(--color-ink) / <alpha-value>)',
+                    muted: 'rgb(var(--color-ink-muted) / <alpha-value>)',
+                    subtle: 'rgb(var(--color-ink-subtle) / <alpha-value>)',
                     inverted: '#f8fafc',
                 },
                 border: {
-                    DEFAULT: '#e2e8f0',
-                    strong: '#cbd5e1',
+                    DEFAULT: 'rgb(var(--color-border) / <alpha-value>)',
+                    strong: 'rgb(var(--color-border-strong) / <alpha-value>)',
                 },
                 success: {
                     50: '#ecfdf5',

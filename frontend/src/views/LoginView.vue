@@ -123,11 +123,7 @@ async function submit(): Promise<void> {
                     :error="fieldErrors.password"
                 />
 
-                <p
-                    v-if="generalError"
-                    class="rounded-md border border-danger-500/40 bg-danger-50 px-3 py-2 text-sm text-danger-700"
-                    role="alert"
-                >
+                <p v-if="generalError" class="pactum-alert-danger" role="alert">
                     {{ generalError }}
                 </p>
 
