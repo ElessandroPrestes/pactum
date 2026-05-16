@@ -4,6 +4,7 @@ import { useRoute } from 'vue-router'
 import { primaryNavigation } from '@/config/navigation'
 import AppIcon from './AppIcon.vue'
 import ThemeToggle from './ThemeToggle.vue'
+import UserMenu from './UserMenu.vue'
 
 defineEmits<{
     (e: 'open-menu'): void
@@ -51,16 +52,6 @@ const pageTitle = computed(() => {
             <AppIcon name="bell" />
         </button>
 
-        <div
-            class="hidden h-9 items-center gap-2 rounded-md border border-border bg-surface px-2 text-sm text-ink-muted sm:flex"
-            aria-label="Sessao em desenvolvimento"
-        >
-            <span
-                class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-brand-100 text-xs font-semibold text-brand-700 dark:bg-brand-500/20 dark:text-brand-300"
-                aria-hidden="true"
-                >P</span
-            >
-            <span class="pr-1">dev local</span>
-        </div>
+        <UserMenu />
     </header>
 </template>

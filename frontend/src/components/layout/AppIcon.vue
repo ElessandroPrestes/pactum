@@ -2,7 +2,17 @@
 import type { NavItem } from '@/config/navigation'
 
 defineProps<{
-    name: NavItem['icon'] | 'menu' | 'close' | 'bell' | 'sun' | 'moon' | 'monitor' | 'chevron-right'
+    name:
+        | NavItem['icon']
+        | 'menu'
+        | 'close'
+        | 'bell'
+        | 'sun'
+        | 'moon'
+        | 'monitor'
+        | 'chevron-right'
+        | 'chevron-down'
+        | 'log-out'
     size?: number
 }>()
 </script>
@@ -73,6 +83,14 @@ defineProps<{
         </template>
         <template v-else-if="name === 'chevron-right'">
             <polyline points="9 6 15 12 9 18" />
+        </template>
+        <template v-else-if="name === 'chevron-down'">
+            <polyline points="6 9 12 15 18 9" />
+        </template>
+        <template v-else-if="name === 'log-out'">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            <polyline points="16 17 21 12 16 7" />
+            <line x1="21" y1="12" x2="9" y2="12" />
         </template>
     </svg>
 </template>
