@@ -37,6 +37,8 @@ RUN composer install --prefer-dist --no-interaction
 FROM base AS prod
 
 COPY docker/php/opcache.ini /usr/local/etc/php/conf.d/zz-opcache.ini
-COPY --from=vendor /var/www/html/vendor ./vendor
-COPY . .
+COPY --from=vendor --chown=www-data:www-data /var/www/html/vendor ./vendor
+COPY --chown=www-data:www-data . .
+
+USER www-data
 RUN composer dump-autoload --optimize --classmap-authoritative --no-dev --no-interaction
