@@ -35,6 +35,24 @@ const routes: RouteRecordRaw[] = [
         meta: { title: 'Editar cliente' },
     },
     {
+        path: '/servicos',
+        name: 'services-list',
+        component: () => import('@/views/services/ServicesListView.vue'),
+        meta: { title: 'Servicos' },
+    },
+    {
+        path: '/servicos/novo',
+        name: 'services-create',
+        component: () => import('@/views/services/ServiceFormView.vue'),
+        meta: { title: 'Novo servico' },
+    },
+    {
+        path: '/servicos/:id(\\d+)/editar',
+        name: 'services-edit',
+        component: () => import('@/views/services/ServiceFormView.vue'),
+        meta: { title: 'Editar servico' },
+    },
+    {
         path: '/login',
         name: 'login',
         component: () => import('@/views/LoginView.vue'),
