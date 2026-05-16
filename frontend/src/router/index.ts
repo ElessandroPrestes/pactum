@@ -5,10 +5,26 @@ const routes: RouteRecordRaw[] = [
         path: '/',
         name: 'home',
         component: () => import('@/views/HomeView.vue'),
+        meta: { title: 'Visao geral' },
+    },
+    {
+        path: '/erro',
+        name: 'server-error',
+        component: () => import('@/views/ServerErrorView.vue'),
+        meta: { title: 'Erro inesperado' },
+    },
+    {
+        path: '/:pathMatch(.*)*',
+        name: 'not-found',
+        component: () => import('@/views/NotFoundView.vue'),
+        meta: { title: 'Pagina nao encontrada' },
     },
 ]
 
 export const router = createRouter({
     history: createWebHistory(),
     routes,
+    scrollBehavior() {
+        return { top: 0 }
+    },
 })
