@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 
 declare module 'vue-router' {
     interface RouteMeta {
@@ -41,4 +42,23 @@ export const router = createRouter({
     scrollBehavior() {
         return { top: 0 }
     },
+})
+
+router.beforeEach((to) => {
+    const auth = useAuthStore()
+    const isPublic = to.meta.public === true
+
+    if (!isPublic && !auth.isAuthenticated) {
+        return {
+            name: 'login',
+            query: to.fullPath !== '/' ? { redirect: to.fullPath } : undefined,
+        }
+    }
+
+    if (auth.isAuthenticated && to.name === 'login') {
+        const redirect = typeof to.query.redirect === 'string' ? to.query.redirect : '/'
+        return redirect.startsWith('/') ? redirect : { name: 'home' }
+    }
+
+    return true
 })
