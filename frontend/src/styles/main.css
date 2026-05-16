@@ -1,3 +1,65 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+    :root {
+        color-scheme: light;
+        --pactum-focus: theme('colors.brand.500');
+    }
+
+    .dark {
+        color-scheme: dark;
+    }
+
+    html {
+        -webkit-text-size-adjust: 100%;
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+        @apply min-h-screen bg-surface-muted font-sans text-ink antialiased;
+    }
+
+    .dark body {
+        @apply bg-surface-inverted text-ink-inverted;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+        @apply font-semibold tracking-tight text-ink;
+    }
+
+    .dark h1,
+    .dark h2,
+    .dark h3,
+    .dark h4 {
+        @apply text-ink-inverted;
+    }
+
+    :where(a, button, input, select, textarea, [tabindex]):focus-visible {
+        @apply outline-none ring-2 ring-brand-500 ring-offset-2 ring-offset-surface;
+    }
+
+    .dark :where(a, button, input, select, textarea, [tabindex]):focus-visible {
+        @apply ring-offset-surface-inverted;
+    }
+}
+
+@layer components {
+    .pactum-skip-link {
+        @apply sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-toast focus:rounded-md focus:bg-brand-600 focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-white;
+    }
+
+    .pactum-card {
+        @apply rounded-lg border border-border bg-surface shadow-xs;
+    }
+
+    .pactum-divider {
+        @apply h-px w-full bg-border;
+    }
+}
