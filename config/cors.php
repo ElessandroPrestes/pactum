@@ -7,10 +7,11 @@ return [
     | Cross-Origin Resource Sharing (CORS) Configuration
     |--------------------------------------------------------------------------
     |
-    | Restritivo por padrao: apenas o frontend Vite (dev) e dominios listados
-    | em FRONTEND_URL podem acessar a API. Producao deve apontar para o dominio
-    | real via env. Idempotency-Key e Authorization estao explicitos em
-    | allowed_headers para passar no preflight.
+    | Em dev SPA e API rodam na mesma origem (nginx em APP_URL), entao CORS
+    | nao e exercitado no fluxo padrao. A configuracao ainda existe para
+    | cenarios em que o frontend seja servido fora (ex: rodar Vite direto
+    | em outra porta) ou para producao em dominio separado — basta apontar
+    | FRONTEND_URL e, se necessario, FRONTEND_URL_ALT.
     |
     */
 
@@ -19,7 +20,7 @@ return [
     'allowed_methods' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
 
     'allowed_origins' => array_filter([
-        env('FRONTEND_URL', 'http://localhost:5173'),
+        env('FRONTEND_URL', 'http://localhost:8000'),
         env('FRONTEND_URL_ALT'),
     ]),
 
