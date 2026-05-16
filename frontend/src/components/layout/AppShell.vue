@@ -4,7 +4,6 @@ import { useRoute } from 'vue-router'
 import AppHeader from './AppHeader.vue'
 import AppSidebar from './AppSidebar.vue'
 import AppIcon from './AppIcon.vue'
-import { AppToastContainer } from '@/components/ui'
 
 const mobileOpen = ref(false)
 const route = useRoute()
@@ -80,7 +79,5 @@ function closeMobile(): void {
                 <slot />
             </main>
         </div>
-
-        <AppToastContainer />
     </div>
 </template>
