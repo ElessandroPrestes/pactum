@@ -19,6 +19,7 @@ const props = withDefaults(
         autocomplete?: string
         inputmode?: 'text' | 'email' | 'numeric' | 'tel' | 'search' | 'url'
         name?: string
+        maxlength?: number
     }>(),
     {
         modelValue: '',
@@ -34,6 +35,7 @@ const props = withDefaults(
         autocomplete: undefined,
         inputmode: undefined,
         name: undefined,
+        maxlength: undefined,
     },
 )
 
@@ -85,6 +87,7 @@ const describedBy = computed(() => {
             :autocomplete="autocomplete"
             :inputmode="inputmode"
             :name="name"
+            :maxlength="maxlength"
             :aria-invalid="variant === 'invalid' || undefined"
             :aria-describedby="describedBy"
             :class="inputClass"
