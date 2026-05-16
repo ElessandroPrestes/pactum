@@ -17,6 +17,24 @@ const routes: RouteRecordRaw[] = [
         meta: { title: 'Visao geral' },
     },
     {
+        path: '/clientes',
+        name: 'clients-list',
+        component: () => import('@/views/clients/ClientsListView.vue'),
+        meta: { title: 'Clientes' },
+    },
+    {
+        path: '/clientes/novo',
+        name: 'clients-create',
+        component: () => import('@/views/clients/ClientFormView.vue'),
+        meta: { title: 'Novo cliente' },
+    },
+    {
+        path: '/clientes/:id(\\d+)/editar',
+        name: 'clients-edit',
+        component: () => import('@/views/clients/ClientFormView.vue'),
+        meta: { title: 'Editar cliente' },
+    },
+    {
         path: '/login',
         name: 'login',
         component: () => import('@/views/LoginView.vue'),

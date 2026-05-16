@@ -1,6 +1,8 @@
+export { default as AppBadge } from './AppBadge.vue'
 export { default as AppButton } from './AppButton.vue'
 export { default as AppInput } from './AppInput.vue'
 export { default as AppLabel } from './AppLabel.vue'
 export { default as AppModal } from './AppModal.vue'
+export { default as AppPagination } from './AppPagination.vue'
 export { default as AppSelect } from './AppSelect.vue'
 export { default as AppToastContainer } from './AppToastContainer.vue'
