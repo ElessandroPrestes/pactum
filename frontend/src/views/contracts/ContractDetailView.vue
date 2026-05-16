@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
-import { AppBadge, AppButton, AppInput, AppModal, AppSelect } from '@/components/ui'
+import { AppBadge, AppButton, AppInput, AppModal, AppSelect, AppSkeleton } from '@/components/ui'
 import { useContractsStore } from '@/stores/contracts'
 import { useToastStore } from '@/stores/toast'
 import { ApiError } from '@/lib/http'
@@ -280,11 +280,23 @@ onBeforeUnmount(() => {
 
         <div
             v-if="loading"
-            class="pactum-card flex items-center justify-center px-6 py-12 text-sm text-ink-muted"
+            class="pactum-card p-5"
             role="status"
             aria-live="polite"
+            aria-busy="true"
         >
-            Carregando contrato...
+            <span class="sr-only">Carregando contrato...</span>
+            <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <div v-for="block in 4" :key="block" class="flex flex-col gap-2">
+                    <AppSkeleton class="h-3 w-16" />
+                    <AppSkeleton class="h-5 w-32" />
+                </div>
+            </div>
+            <div class="mt-6 space-y-3">
+                <AppSkeleton class="h-4 w-full" />
+                <AppSkeleton class="h-4 w-5/6" />
+                <AppSkeleton class="h-4 w-2/3" />
+            </div>
         </div>
 
         <div
@@ -441,10 +453,16 @@ onBeforeUnmount(() => {
 
                 <div
                     v-if="store.historyStatus === 'loading'"
-                    class="py-6 text-center text-sm text-ink-muted"
+                    class="space-y-3 py-2"
                     role="status"
+                    aria-live="polite"
+                    aria-busy="true"
                 >
-                    Carregando historico...
+                    <span class="sr-only">Carregando historico...</span>
+                    <div v-for="row in 3" :key="row" class="flex flex-col gap-2">
+                        <AppSkeleton class="h-3 w-40" />
+                        <AppSkeleton class="h-3 w-24" />
+                    </div>
                 </div>
                 <div
                     v-else-if="store.historyStatus === 'error'"
@@ -495,18 +513,10 @@ onBeforeUnmount(() => {
                 Tem certeza? O cancelamento e definitivo pela interface e sera registrado no
                 historico.
             </p>
-            <p
-                v-if="conflictMessage"
-                class="mt-3 rounded-md border border-warning-500/40 bg-warning-50 px-3 py-2 text-xs text-warning-700"
-                role="alert"
-            >
+            <p v-if="conflictMessage" class="pactum-alert-warning mt-3 text-xs" role="alert">
                 {{ conflictMessage }}
             </p>
-            <p
-                v-if="cancelError"
-                class="mt-3 rounded-md border border-danger-500/40 bg-danger-50 px-3 py-2 text-xs text-danger-700"
-                role="alert"
-            >
+            <p v-if="cancelError" class="pactum-alert-danger mt-3 text-xs" role="alert">
                 {{ cancelError }}
             </p>
             <template #footer>

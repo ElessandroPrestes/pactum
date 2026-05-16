@@ -1,7 +1,14 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
-import { AppBadge, AppButton, AppInput, AppPagination, AppSelect } from '@/components/ui'
+import {
+    AppBadge,
+    AppButton,
+    AppInput,
+    AppPagination,
+    AppSelect,
+    AppSkeleton,
+} from '@/components/ui'
 import { useContractsStore } from '@/stores/contracts'
 import { useToastStore } from '@/stores/toast'
 import { ApiError } from '@/lib/http'
@@ -153,11 +160,19 @@ watch(
         <div class="pactum-card overflow-hidden">
             <div
                 v-if="loading"
-                class="flex items-center justify-center px-6 py-12 text-sm text-ink-muted"
+                class="flex flex-col gap-3 px-6 py-6"
                 role="status"
                 aria-live="polite"
+                aria-busy="true"
             >
-                Carregando contratos...
+                <span class="sr-only">Carregando contratos...</span>
+                <div v-for="row in 4" :key="row" class="grid grid-cols-12 items-center gap-3">
+                    <AppSkeleton class="col-span-2 h-3" />
+                    <AppSkeleton class="col-span-3 h-4" />
+                    <AppSkeleton class="col-span-2 h-3" />
+                    <AppSkeleton class="col-span-2 h-3" />
+                    <AppSkeleton class="col-span-3 h-5" rounded="9999px" />
+                </div>
             </div>
 
             <div
