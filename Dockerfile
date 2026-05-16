@@ -4,9 +4,9 @@
 FROM php:8.3-fpm-alpine AS base
 
 RUN apk add --no-cache icu-libs \
-    && apk add --no-cache --virtual .build-deps $PHPIZE_DEPS icu-dev linux-headers \
+    && apk add --no-cache --virtual .build-deps $PHPIZE_DEPS icu-dev linux-headers openssl-dev \
     && docker-php-ext-install -j"$(nproc)" pdo_mysql bcmath intl opcache pcntl \
-    && pecl install redis \
+    && yes '' | pecl install -f redis \
     && docker-php-ext-enable redis \
     && apk del .build-deps \
     && rm -rf /tmp/pear
