@@ -162,6 +162,35 @@ do caminho de escrita.
 A SPA é Vue 3 + TypeScript + Pinia + Tailwind, justificada na
 [ADR-0007](adr/0007-vue-3-typescript-pinia-tailwind.md).
 
+### Entrypoint unificado (nginx)
+
+SPA e API rodam **na mesma origem**: o `nginx` é o único container exposto ao
+host (porta `APP_PORT`, default `8000`) e roteia internamente — decisão em
+[ADR-0008](adr/0008-entrypoint-unificado-via-nginx.md).
+
+```
+                       ┌─────────────────────────────┐
+  Navegador ──:8000──▶ │           nginx             │
+                       │                             │
+                       │  /api/*    ─┐               │
+                       │  /sanctum/* ├─▶ fastcgi ──▶ │ app  (PHP-FPM)
+                       │  /health    ┘               │
+                       │                             │
+                       │  /*  ─▶ proxy_pass  ──────▶ │ frontend  (Vite + HMR
+                       │           (HTTP/1.1 +       │            via WebSocket)
+                       │            Upgrade)         │
+                       └─────────────────────────────┘
+```
+
+Consequências práticas:
+
+- `VITE_API_BASE_URL=/api/v1` (path relativo) — mesma origem dispensa CORS
+  no fluxo padrão.
+- HMR do Vite atravessa o nginx via WebSocket; `vite.config.ts` aponta
+  `server.hmr.clientPort` para `APP_PORT` para o cliente conectar no nginx.
+- Em prod, o estágio `prod` do `frontend/Dockerfile` serve `dist/` por
+  nginx — topologia idêntica à de dev.
+
 ### Equivalente de três camadas no front
 
 ```

@@ -85,9 +85,15 @@ O `.env.example` já vem apontando para os serviços do Docker (`DB_HOST=mysql`,
 make up
 ```
 
-Isso constrói a imagem e sobe cinco serviços: `app` (PHP-FPM), `nginx`, `mysql`,
-`redis` e `queue` (worker). Na primeira execução o MySQL leva ~2 minutos para
-inicializar — o `start_period` do healthcheck cobre essa janela.
+Isso constrói a imagem e sobe seis serviços: `app` (PHP-FPM), `nginx`, `mysql`,
+`redis`, `queue` (worker) e `frontend` (Vite). Na primeira execução o MySQL leva
+~2 minutos para inicializar — o `start_period` do healthcheck cobre essa janela.
+
+O `nginx` é o único ponto de entrada exposto (porta `APP_PORT`, default `8000`)
+e roteia internamente: `/api/*`, `/sanctum/*` e `/health` vão para o Laravel
+(PHP-FPM), e qualquer outro path é proxy_pass para o Vite dev server da SPA
+(com upgrade de WebSocket para HMR). Decisão registrada na
+[ADR-0008](docs/adr/0008-entrypoint-unificado-via-nginx.md).
 
 ### 4. Gere a chave da aplicação e rode as migrations
 
@@ -101,7 +107,12 @@ make migrate
 
 ### 5. Acesse a aplicação
 
-A API fica disponível em **http://localhost:8000**.
+A SPA Vue e a API ficam disponíveis em **http://localhost:8000** (mesma origem):
+
+- **http://localhost:8000/** — SPA Vue 3 (login em `dev@pactum.local` /
+  `change-me-in-dev` após `make seed`).
+- **http://localhost:8000/api/v1** — API REST.
+- **http://localhost:8000/health** — health check (MySQL + Redis).
 
 ---
 

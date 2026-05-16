@@ -57,17 +57,23 @@ make up               # sobe app + nginx + mysql + redis + queue + frontend
 make front-shell      # shell no container frontend, se precisar
 ```
 
-O serviço `frontend` no compose já executa `npm run dev` em
-`http://localhost:5173` com hot-reload.
+A SPA é servida pelo `nginx` em **http://localhost:8000** (mesma origem que a
+API). O Vite roda dentro do container `frontend` na porta interna `5173` — o
+`nginx` faz `proxy_pass` com upgrade de WebSocket para preservar HMR. Decisão
+registrada na
+[ADR-0008](../docs/adr/0008-entrypoint-unificado-via-nginx.md).
 
-### Pelo Node local
+### Pelo Node local (fora do compose)
+
+Útil para rodar Vite sem o restante do stack. Nesse modo a SPA fica em
+`http://localhost:5173` e precisa de CORS para falar com a API; aponte
+`VITE_API_BASE_URL` para a URL absoluta da API e a defina como `FRONTEND_URL`
+no `.env` do backend.
 
 ```bash
 npm install
 npm run dev           # http://localhost:5173
 ```
-
-Confirme que `VITE_API_BASE_URL` (em `.env`) aponta para a API:
 
 ```
 VITE_API_BASE_URL=http://localhost:8000/api/v1
@@ -78,7 +84,7 @@ VITE_APP_NAME=Pactum
 
 | Comando                  | O que faz                                          |
 |--------------------------|----------------------------------------------------|
-| `npm run dev`            | Servidor de desenvolvimento Vite com HMR           |
+| `npm run dev`            | Servidor de desenvolvimento Vite com HMR (porta 5173) |
 | `npm run build`          | Type-check (vue-tsc) + build de produção           |
 | `npm run preview`        | Serve o `dist/` para sanity-check do build         |
 | `npm run type-check`     | Apenas `vue-tsc --noEmit`                          |
@@ -123,12 +129,15 @@ Credenciais usadas (`DevTokenSeeder`):
 - email: `dev@pactum.local`
 - senha: `change-me-in-dev`
 
-Variáveis para sobrescrever:
+Por padrão o Playwright sobe seu próprio Vite em `http://localhost:5173`
+(`webServer` no `playwright.config.ts`) e faz as chamadas HTTP para a API
+em `http://localhost:8000`. Para rodar contra o stack já em pé (SPA servida
+pelo nginx), aponte para a porta pública:
 
 ```
 E2E_EMAIL=outro@pactum.local
 E2E_PASSWORD=outra-senha
-PLAYWRIGHT_BASE_URL=http://localhost:5173
+PLAYWRIGHT_BASE_URL=http://localhost:8000
 ```
 
 ## Build de produção
@@ -169,8 +178,10 @@ novo é, na maioria dos casos, usar os tokens — sem `dark:` espalhado.
 
 - **`401` em todas as requests**: token expirado ou backend reiniciado sem
   re-seed. Faça login novamente.
-- **`CORS` no console**: o backend libera `http://localhost:5173` por padrão.
-  Se o frontend está em outra porta, ajustar `config/cors.php` no backend.
+- **`CORS` no console**: no fluxo padrão (SPA via nginx em `localhost:8000`)
+  não há cross-origin. Se você está servindo a SPA em outra origem (Vite
+  direto em `5173`, por exemplo), aponte `FRONTEND_URL` no `.env` do backend
+  para essa URL.
 - **`409` ao salvar contrato**: outra sessão alterou o contrato — a UI mostra
   mensagem específica e recarrega a versão atual.
 - **Playwright "browser not found"**: rodar `npm run test:e2e:install`.

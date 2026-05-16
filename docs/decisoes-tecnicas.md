@@ -12,6 +12,7 @@ Sumário executivo das ADRs do projeto. Cada decisão tem um ADR completo em
 | [0005](adr/0005-tabela-de-historico-em-vez-de-event-sourcing.md) | Tabela `contract_histories` com payload JSON + job idempotente | Event Sourcing puro |
 | [0006](adr/0006-phpstan-nivel-8.md) | PHPStan nível 8 + Larastan | Nível 6 (mais permissivo) |
 | [0007](adr/0007-vue-3-typescript-pinia-tailwind.md) | SPA Vue 3 + TypeScript + Pinia + Tailwind (Vite + Vitest + Playwright) | Vuetify/PrimeVue, JS puro, Nuxt |
+| [0008](adr/0008-entrypoint-unificado-via-nginx.md) | Nginx é o único entrypoint: roteia `/api` para Laravel e `/` (proxy + WebSocket) para Vite | Duas portas com CORS, Vite middleware no Laravel |
 
 ## Como propor nova decisão
 
