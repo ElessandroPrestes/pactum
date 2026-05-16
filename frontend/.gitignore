@@ -3,6 +3,7 @@ dist
 dist-ssr
 coverage
 .vitest-cache
+.vite
 *.local
 
 .DS_Store
