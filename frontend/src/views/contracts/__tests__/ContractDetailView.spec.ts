@@ -111,7 +111,7 @@ describe('ContractDetailView', () => {
         await flushPromises()
 
         expect(wrapper.text()).toContain('Acme Ltda')
-        expect(wrapper.text()).toContain('2026-01-01')
+        expect(wrapper.text()).toContain('01/01/2026')
         expect(wrapper.text()).toContain('ativo')
     })
 

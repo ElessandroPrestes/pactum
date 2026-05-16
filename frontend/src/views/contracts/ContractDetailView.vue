@@ -7,6 +7,7 @@ import { useToastStore } from '@/stores/toast'
 import { ApiError } from '@/lib/http'
 import { listServices } from '@/api/services'
 import { formatBRL, formatCurrencyInput, parseCurrencyInput } from '@/utils/currency'
+import { formatDate, formatDateTime } from '@/utils/date'
 import type { Service } from '@/types/service'
 import type { ContractItem } from '@/types/contract'
 import type { ContractHistoryEntry } from '@/types/contractHistory'
@@ -230,14 +231,6 @@ function subtotalItem(item: ContractItem): string {
     return formatBRL(Number.isFinite(total) ? total : 0)
 }
 
-function formatHistoricoData(value: string): string {
-    const date = new Date(value)
-    if (Number.isNaN(date.getTime())) {
-        return value
-    }
-    return date.toLocaleString('pt-BR')
-}
-
 function payloadResumo(entry: ContractHistoryEntry): string {
     if (!entry.payload) return ''
     try {
@@ -322,11 +315,11 @@ onBeforeUnmount(() => {
                     </div>
                     <div>
                         <dt class="text-xs font-medium uppercase text-ink-subtle">Inicio</dt>
-                        <dd class="mt-1 text-ink">{{ store.current.data_inicio }}</dd>
+                        <dd class="mt-1 text-ink">{{ formatDate(store.current.data_inicio) }}</dd>
                     </div>
                     <div>
                         <dt class="text-xs font-medium uppercase text-ink-subtle">Fim</dt>
-                        <dd class="mt-1 text-ink">{{ store.current.data_fim ?? '—' }}</dd>
+                        <dd class="mt-1 text-ink">{{ formatDate(store.current.data_fim) }}</dd>
                     </div>
                     <div>
                         <dt class="text-xs font-medium uppercase text-ink-subtle">Total mensal</dt>
@@ -486,7 +479,7 @@ onBeforeUnmount(() => {
                         />
                         <p class="text-sm font-medium text-ink">{{ entry.evento }}</p>
                         <p class="text-xs text-ink-subtle">
-                            {{ formatHistoricoData(entry.created_at) }}
+                            {{ formatDateTime(entry.created_at) }}
                         </p>
                         <pre
                             v-if="entry.payload"

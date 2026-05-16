@@ -14,6 +14,7 @@ import { useToastStore } from '@/stores/toast'
 import { ApiError } from '@/lib/http'
 import { listClients } from '@/api/clients'
 import { formatBRL } from '@/utils/currency'
+import { formatDate } from '@/utils/date'
 import type { Client } from '@/types/client'
 import type { ContractStatus } from '@/types/contract'
 
@@ -228,10 +229,10 @@ watch(
                                 {{ clientName(contract) }}
                             </td>
                             <td class="px-4 py-3 text-ink-muted">
-                                {{ contract.data_inicio }}
+                                {{ formatDate(contract.data_inicio) }}
                             </td>
                             <td class="px-4 py-3 text-ink-muted">
-                                {{ contract.data_fim ?? '—' }}
+                                {{ formatDate(contract.data_fim) }}
                             </td>
                             <td class="px-4 py-3 text-right font-mono text-ink-muted">
                                 {{ totalForRow(contract) }}
