@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { onBeforeUnmount, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import AppBreadcrumbs from './AppBreadcrumbs.vue'
 import AppHeader from './AppHeader.vue'
 import AppSidebar from './AppSidebar.vue'
 import AppIcon from './AppIcon.vue'
@@ -17,6 +18,17 @@ watch(
 
 function closeMobile(): void {
     mobileOpen.value = false
+}
+
+function onKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Escape' && mobileOpen.value) {
+        closeMobile()
+    }
+}
+
+if (typeof document !== 'undefined') {
+    document.addEventListener('keydown', onKeydown)
+    onBeforeUnmount(() => document.removeEventListener('keydown', onKeydown))
 }
 </script>
 
@@ -76,6 +88,7 @@ function closeMobile(): void {
         <div class="flex min-h-screen flex-col lg:pl-72">
             <AppHeader @open-menu="mobileOpen = true" />
             <main id="conteudo-principal" class="flex-1 px-4 py-6 sm:px-6 lg:px-8" tabindex="-1">
+                <AppBreadcrumbs />
                 <slot />
             </main>
         </div>
