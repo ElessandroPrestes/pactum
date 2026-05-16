@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive, watch } from 'vue'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
-import { AppBadge, AppButton, AppInput, AppPagination, AppSelect } from '@/components/ui'
+import { AppBadge, AppButton, AppInput, AppModal, AppPagination, AppSelect } from '@/components/ui'
 import { useClientsStore } from '@/stores/clients'
 import { useToastStore } from '@/stores/toast'
 import { ApiError } from '@/lib/http'
 import { formatDocumento } from '@/utils/documento'
-import type { ClientStatus } from '@/types/client'
+import type { Client, ClientStatus } from '@/types/client'
 
 const router = useRouter()
 const store = useClientsStore()
@@ -66,6 +66,44 @@ function statusTone(status: ClientStatus): 'success' | 'neutral' {
 
 function goToEdit(id: number): void {
     void router.push({ name: 'clients-edit', params: { id: String(id) } })
+}
+
+const targetToDelete = ref<Client | null>(null)
+const deleting = ref(false)
+
+function askDelete(client: Client): void {
+    targetToDelete.value = client
+}
+
+function cancelDelete(): void {
+    if (deleting.value) {
+        return
+    }
+    targetToDelete.value = null
+}
+
+async function confirmDelete(): Promise<void> {
+    const target = targetToDelete.value
+    if (!target) {
+        return
+    }
+    deleting.value = true
+    try {
+        await store.remove(target.id)
+        toasts.success('Cliente excluido', `${target.nome} foi removido com sucesso.`)
+        targetToDelete.value = null
+        if (store.items.length === 0 && store.meta.current_page > 1) {
+            await store.changePage(store.meta.current_page - 1)
+        }
+    } catch (error) {
+        if (error instanceof ApiError) {
+            toasts.error('Falha ao excluir', error.message)
+        } else {
+            toasts.error('Falha ao excluir', 'Tente novamente em instantes.')
+        }
+    } finally {
+        deleting.value = false
+    }
 }
 
 onMounted(() => {
@@ -185,14 +223,24 @@ watch(
                                 </AppBadge>
                             </td>
                             <td class="px-4 py-3 text-right">
-                                <AppButton
-                                    variant="ghost"
-                                    size="sm"
-                                    :aria-label="`Editar cliente ${client.nome}`"
-                                    @click="goToEdit(client.id)"
-                                >
-                                    Editar
-                                </AppButton>
+                                <div class="flex justify-end gap-1">
+                                    <AppButton
+                                        variant="ghost"
+                                        size="sm"
+                                        :aria-label="`Editar cliente ${client.nome}`"
+                                        @click="goToEdit(client.id)"
+                                    >
+                                        Editar
+                                    </AppButton>
+                                    <AppButton
+                                        variant="ghost"
+                                        size="sm"
+                                        :aria-label="`Excluir cliente ${client.nome}`"
+                                        @click="askDelete(client)"
+                                    >
+                                        Excluir
+                                    </AppButton>
+                                </div>
                             </td>
                         </tr>
                     </tbody>
@@ -208,5 +256,31 @@ watch(
                 />
             </div>
         </div>
+
+        <AppModal
+            :open="targetToDelete !== null"
+            title="Excluir cliente"
+            :description="
+                targetToDelete
+                    ? `Confirmar a exclusao de ${targetToDelete.nome}? Esta acao nao pode ser desfeita pela interface.`
+                    : ''
+            "
+            size="sm"
+            :close-on-backdrop="!deleting"
+            @close="cancelDelete"
+        >
+            <p class="text-sm text-ink-muted">
+                O cliente sera removido logicamente (soft delete) e contratos vinculados continuam
+                inalterados.
+            </p>
+            <template #footer>
+                <AppButton variant="secondary" :disabled="deleting" @click="cancelDelete">
+                    Cancelar
+                </AppButton>
+                <AppButton variant="danger" :loading="deleting" @click="confirmDelete">
+                    Excluir
+                </AppButton>
+            </template>
+        </AppModal>
     </section>
 </template>
