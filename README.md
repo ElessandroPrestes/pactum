@@ -95,7 +95,7 @@ e roteia internamente: `/api/*`, `/sanctum/*` e `/health` vão para o Laravel
 (com upgrade de WebSocket para HMR). Decisão registrada na
 [ADR-0008](docs/adr/0008-entrypoint-unificado-via-nginx.md).
 
-### 4. Gere a chave da aplicação e rode as migrations
+### 4. Gere a chave da aplicação, rode migrations e seeds
 
 ```bash
 make shell
@@ -103,16 +103,47 @@ php artisan key:generate
 exit
 
 make migrate
+make seed         # cria usuario de dev e dados de exemplo
 ```
+
+O `DevTokenSeeder` cria o usuário de testes e imprime as credenciais (email,
+senha e token Sanctum) no terminal. As mesmas credenciais ficam descritas em
+[Credenciais de desenvolvimento](#credenciais-de-desenvolvimento) abaixo.
 
 ### 5. Acesse a aplicação
 
 A SPA Vue e a API ficam disponíveis em **http://localhost:8000** (mesma origem):
 
-- **http://localhost:8000/** — SPA Vue 3 (login em `dev@pactum.local` /
-  `change-me-in-dev` após `make seed`).
+- **http://localhost:8000/** — SPA Vue 3 (faça login com as credenciais abaixo).
 - **http://localhost:8000/api/v1** — API REST.
 - **http://localhost:8000/health** — health check (MySQL + Redis).
+
+### Credenciais de desenvolvimento
+
+O `DevTokenSeeder` (registrado no `DatabaseSeeder` e executado em
+`make seed` / `make fresh`) cria um usuário fixo para login na SPA e um
+token Sanctum para chamadas via curl. **Só roda em `local`, `development` e
+`testing`** — em produção é no-op.
+
+| Campo    | Valor                |
+|----------|----------------------|
+| Email    | `dev@pactum.local`   |
+| Senha    | `change-me-in-dev`   |
+| Nome     | `Dev Pactum`         |
+| Token    | impresso em cada run de `db:seed --class=DevTokenSeeder` (é regenerado a cada execução) |
+
+Para (re)imprimir o token sem recriar dados:
+
+```bash
+make shell
+php artisan db:seed --class=DevTokenSeeder
+```
+
+Para usar nas chamadas curl da seção [Exemplos com curl](#exemplos-com-curl):
+
+```bash
+export PACTUM_TOKEN=<token impresso pelo seeder>
+```
 
 ---
 
