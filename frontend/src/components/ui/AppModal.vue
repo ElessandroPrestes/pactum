@@ -23,6 +23,7 @@ const emit = defineEmits<{
 }>()
 
 const dialogRef = ref<HTMLElement | null>(null)
+const previouslyFocused = ref<HTMLElement | null>(null)
 const generatedId = useId()
 const titleId = computed(() => `modal-${generatedId}-title`)
 const descriptionId = computed(() => `modal-${generatedId}-description`)
@@ -38,10 +39,44 @@ const sizeClass = computed(() => {
     }
 })
 
+const FOCUSABLE_SELECTOR =
+    'a[href], area[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+
+function focusableElements(): HTMLElement[] {
+    if (!dialogRef.value) return []
+    return Array.from(dialogRef.value.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)).filter(
+        (el) => !el.hasAttribute('disabled') && el.tabIndex !== -1,
+    )
+}
+
+function trapTab(event: KeyboardEvent): void {
+    const focusables = focusableElements()
+    if (focusables.length === 0) {
+        event.preventDefault()
+        dialogRef.value?.focus()
+        return
+    }
+    const first = focusables[0]!
+    const last = focusables[focusables.length - 1]!
+    const active = document.activeElement as HTMLElement | null
+
+    if (event.shiftKey && (active === first || !dialogRef.value?.contains(active))) {
+        event.preventDefault()
+        last.focus()
+    } else if (!event.shiftKey && active === last) {
+        event.preventDefault()
+        first.focus()
+    }
+}
+
 function onKeydown(event: KeyboardEvent): void {
     if (event.key === 'Escape') {
         event.stopPropagation()
         emit('close')
+        return
+    }
+    if (event.key === 'Tab') {
+        trapTab(event)
     }
 }
 
@@ -55,11 +90,19 @@ watch(
     () => props.open,
     async (open) => {
         if (open) {
+            previouslyFocused.value = document.activeElement as HTMLElement | null
             document.addEventListener('keydown', onKeydown)
             await nextTick()
-            dialogRef.value?.focus()
+            const focusables = focusableElements()
+            if (focusables.length > 0) {
+                focusables[0]?.focus()
+            } else {
+                dialogRef.value?.focus()
+            }
         } else {
             document.removeEventListener('keydown', onKeydown)
+            previouslyFocused.value?.focus?.()
+            previouslyFocused.value = null
         }
     },
     { immediate: true },
