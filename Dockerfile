@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # ---- base: runtime PHP-FPM 8.3 com extensoes do projeto ----
-FROM php:8.3-fpm-alpine AS base
+FROM php:8.5-fpm-alpine AS base
 
 RUN apk add --no-cache icu-libs \
     && apk add --no-cache --virtual .build-deps $PHPIZE_DEPS icu-dev linux-headers openssl-dev \
