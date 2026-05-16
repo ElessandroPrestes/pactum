@@ -12,6 +12,9 @@
         },
     },
     tmpDir: "storage/infection",
+    phpUnit: {
+        customPath: "vendor/bin/pest",
+    },
     mutators: {
         "@default": true,
     },
