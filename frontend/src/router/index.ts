@@ -53,6 +53,24 @@ const routes: RouteRecordRaw[] = [
         meta: { title: 'Editar servico' },
     },
     {
+        path: '/contratos',
+        name: 'contracts-list',
+        component: () => import('@/views/contracts/ContractsListView.vue'),
+        meta: { title: 'Contratos' },
+    },
+    {
+        path: '/contratos/novo',
+        name: 'contracts-create',
+        component: () => import('@/views/contracts/ContractCreateView.vue'),
+        meta: { title: 'Novo contrato' },
+    },
+    {
+        path: '/contratos/:id(\\d+)',
+        name: 'contracts-show',
+        component: () => import('@/views/contracts/ContractDetailView.vue'),
+        meta: { title: 'Detalhe do contrato' },
+    },
+    {
         path: '/login',
         name: 'login',
         component: () => import('@/views/LoginView.vue'),
