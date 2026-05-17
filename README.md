@@ -116,6 +116,7 @@ A SPA Vue e a API ficam disponíveis em **http://localhost:8000** (mesma origem)
 
 - **http://localhost:8000/** — SPA Vue 3 (faça login com as credenciais abaixo).
 - **http://localhost:8000/api/v1** — API REST.
+- **http://localhost:8000/api/documentation** — Swagger UI (OpenAPI 3.0).
 - **http://localhost:8000/health** — health check (MySQL + Redis).
 
 ### Credenciais de desenvolvimento
@@ -165,6 +166,7 @@ export PACTUM_TOKEN=<token impresso pelo seeder>
 | `make pint`         | Aplica o code style (Laravel Pint)                     |
 | `make analyse`      | Roda a análise estática (PHPStan nível 8)              |
 | `make check`        | Roda `pint`, `analyse` e `test` em sequência           |
+| `make swagger`      | Regenera a documentação OpenAPI (`storage/api-docs/`)  |
 
 ---
 
@@ -216,6 +218,32 @@ fluxo passo a passo de uma request).
 Todas as rotas vivem sob `/api/v1` e exigem **Bearer token Sanctum**
 (`Authorization: Bearer <token>`). POSTs em `/clients`, `/contracts` e
 `/contracts/{id}/items` exigem header `Idempotency-Key`.
+
+### Documentação interativa (Swagger / OpenAPI 3.0)
+
+Toda a API está documentada via anotações OpenAPI (`darkaonline/l5-swagger`).
+Em desenvolvimento (`L5_SWAGGER_GENERATE_ALWAYS=true` no `.env.example`),
+a doc é regenerada a cada acesso à UI.
+
+| Recurso                        | URL                                                  |
+|--------------------------------|------------------------------------------------------|
+| Swagger UI                     | http://localhost:8000/api/documentation              |
+| OpenAPI 3.0 JSON (raw)         | http://localhost:8000/api/docs                       |
+| JSON em disco (artefato)       | `storage/api-docs/api-docs.json` (ignorado pelo git) |
+
+Para regenerar manualmente após editar anotações:
+
+```bash
+make swagger
+# ou:  docker compose exec app php artisan l5-swagger:generate
+```
+
+Para testar endpoints autenticados pela UI:
+
+1. Faça `POST /auth/login` (botão **Try it out**) com as credenciais de dev.
+2. Copie o `token` da resposta.
+3. Clique em **Authorize** (canto superior direito) e cole o token.
+4. As próximas chamadas vão automaticamente com `Authorization: Bearer <token>`.
 
 ### Health (sem auth)
 
