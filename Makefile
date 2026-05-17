@@ -2,7 +2,7 @@ DC  = docker compose
 APP = $(DC) exec app
 FRONT = $(DC) exec frontend
 
-.PHONY: up down build shell logs migrate seed fresh test test-coverage infection pint analyse check \
+.PHONY: up down build shell logs migrate seed fresh test test-coverage infection pint analyse check swagger \
 	front-shell front-install front-dev front-build front-lint front-test
 
 ## Ambiente
@@ -48,6 +48,10 @@ analyse:
 	$(APP) vendor/bin/phpstan analyse --memory-limit=512M
 
 check: pint analyse test
+
+## Documentacao OpenAPI
+swagger:
+	$(APP) php artisan l5-swagger:generate
 
 ## Frontend
 front-shell:
