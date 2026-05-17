@@ -34,11 +34,25 @@ class SecurityHeaders
 
     private function csp(Request $request, Response $response): string
     {
+        if ($this->ehDocumentacaoSwagger($request)) {
+            return "default-src 'self'; script-src 'self' 'unsafe-inline'; "
+                ."style-src 'self' 'unsafe-inline'; img-src 'self' data:; "
+                ."font-src 'self' data:; connect-src 'self'; frame-ancestors 'none'";
+        }
+
         if ($this->ehRespostaDeApi($request, $response)) {
             return "default-src 'none'; frame-ancestors 'none'";
         }
 
         return "default-src 'self'; style-src 'self' 'unsafe-inline'; frame-ancestors 'none'";
+    }
+
+    private function ehDocumentacaoSwagger(Request $request): bool
+    {
+        return $request->is('api/documentation')
+            || $request->is('api/docs')
+            || $request->is('api/docs/asset/*')
+            || $request->is('api/oauth2-callback');
     }
 
     private function ehRespostaDeApi(Request $request, Response $response): bool
