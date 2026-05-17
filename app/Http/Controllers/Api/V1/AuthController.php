@@ -13,9 +13,24 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Laravel\Sanctum\PersonalAccessToken;
+use OpenApi\Attributes as OA;
 
 class AuthController extends Controller
 {
+    #[OA\Post(
+        path: '/auth/login',
+        summary: 'Autentica o usuario e devolve um token Bearer.',
+        tags: ['Auth'],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(ref: '#/components/schemas/LoginRequest'),
+        ),
+        responses: [
+            new OA\Response(response: 200, description: 'Login com sucesso', content: new OA\JsonContent(ref: '#/components/schemas/LoginResponse')),
+            new OA\Response(response: 422, description: 'Credenciais invalidas ou payload invalido', content: new OA\JsonContent(ref: '#/components/schemas/ValidationError')),
+            new OA\Response(response: 429, description: 'Rate limit excedido (5 req/min).'),
+        ],
+    )]
     public function login(LoginRequest $request): JsonResponse
     {
         $dados = $request->validated();
@@ -37,6 +52,16 @@ class AuthController extends Controller
         ]);
     }
 
+    #[OA\Post(
+        path: '/auth/logout',
+        summary: 'Revoga o token atual do usuario.',
+        security: [['sanctum' => []]],
+        tags: ['Auth'],
+        responses: [
+            new OA\Response(response: 204, description: 'Token revogado.'),
+            new OA\Response(response: 401, description: 'Nao autenticado.', content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse')),
+        ],
+    )]
     public function logout(Request $request): JsonResponse
     {
         $token = $request->user()?->currentAccessToken();
@@ -48,6 +73,20 @@ class AuthController extends Controller
         return new JsonResponse(status: 204);
     }
 
+    #[OA\Get(
+        path: '/auth/me',
+        summary: 'Retorna o usuario autenticado.',
+        security: [['sanctum' => []]],
+        tags: ['Auth'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Usuario autenticado',
+                content: new OA\JsonContent(properties: [new OA\Property(property: 'data', ref: '#/components/schemas/User')]),
+            ),
+            new OA\Response(response: 401, description: 'Nao autenticado.', content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse')),
+        ],
+    )]
     public function me(Request $request): UserResource
     {
         /** @var User $user */

@@ -10,7 +10,20 @@ use App\Models\Client;
 use App\Rules\DocumentoValido;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use OpenApi\Attributes as OA;
 
+#[OA\Schema(
+    schema: 'UpdateClientRequest',
+    title: 'Payload para atualizar Cliente',
+    description: 'Todos os campos sao opcionais; envie apenas o que deseja alterar.',
+    properties: [
+        new OA\Property(property: 'nome', type: 'string', maxLength: 255, example: 'Acme S/A'),
+        new OA\Property(property: 'documento', type: 'string', example: '12345678000199'),
+        new OA\Property(property: 'tipo_documento', type: 'string', enum: ['cpf', 'cnpj']),
+        new OA\Property(property: 'email', type: 'string', format: 'email', maxLength: 255),
+        new OA\Property(property: 'status', type: 'string', enum: ['ativo', 'inativo']),
+    ],
+)]
 class UpdateClientRequest extends FormRequest
 {
     public function authorize(): bool

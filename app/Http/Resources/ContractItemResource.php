@@ -7,10 +7,26 @@ namespace App\Http\Resources;
 use App\Models\ContractItem;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use OpenApi\Attributes as OA;
 
 /**
  * @mixin ContractItem
  */
+#[OA\Schema(
+    schema: 'ContractItem',
+    title: 'Item do Contrato',
+    required: ['id', 'contract_id', 'service_id', 'quantidade', 'valor_unitario'],
+    properties: [
+        new OA\Property(property: 'id', type: 'integer', example: 100),
+        new OA\Property(property: 'contract_id', type: 'integer', example: 7),
+        new OA\Property(property: 'service_id', type: 'integer', example: 10),
+        new OA\Property(property: 'quantidade', type: 'integer', minimum: 1, example: 2),
+        new OA\Property(property: 'valor_unitario', type: 'string', description: 'Decimal 12,2 como string (pode diferir do valor_base do servico).', example: '180.00'),
+        new OA\Property(property: 'service', ref: '#/components/schemas/Service', nullable: true),
+        new OA\Property(property: 'created_at', type: 'string', format: 'date-time', nullable: true),
+        new OA\Property(property: 'updated_at', type: 'string', format: 'date-time', nullable: true),
+    ],
+)]
 class ContractItemResource extends JsonResource
 {
     /**
