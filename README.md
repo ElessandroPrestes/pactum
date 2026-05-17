@@ -126,11 +126,11 @@ O `DevTokenSeeder` (registrado no `DatabaseSeeder` e executado em
 token Sanctum para chamadas via curl. **Só roda em `local`, `development` e
 `testing`** — em produção é no-op.
 
-| Campo    | Valor                |
-|----------|----------------------|
-| Email    | `dev@pactum.local`   |
-| Senha    | `change-me-in-dev`   |
-| Nome     | `Dev Pactum`         |
+| Campo    | Valor                         |
+|----------|-------------------------------|
+| Email    | `darth.vader@pactum.local`    |
+| Senha    | `i-am-your-father`            |
+| Nome     | `Darth Vader`                 |
 | Token    | impresso em cada run de `db:seed --class=DevTokenSeeder` (é regenerado a cada execução) |
 
 Para (re)imprimir o token sem recriar dados:

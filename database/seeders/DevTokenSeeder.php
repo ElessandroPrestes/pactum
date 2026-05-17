@@ -9,9 +9,9 @@ use Illuminate\Database\Seeder;
 
 class DevTokenSeeder extends Seeder
 {
-    private const EMAIL = 'dev@pactum.local';
+    private const EMAIL = 'darth.vader@pactum.local';
 
-    private const PASSWORD = 'change-me-in-dev';
+    private const PASSWORD = 'i-am-your-father';
 
     public function run(): void
     {
@@ -22,7 +22,7 @@ class DevTokenSeeder extends Seeder
         $user = User::firstOrCreate(
             ['email' => self::EMAIL],
             [
-                'name' => 'Dev Pactum',
+                'name' => 'Darth Vader',
                 'password' => bcrypt(self::PASSWORD),
             ],
         );

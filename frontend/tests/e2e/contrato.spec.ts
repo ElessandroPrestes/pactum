@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test'
 
-const DEV_EMAIL = process.env.E2E_EMAIL ?? 'dev@pactum.local'
-const DEV_PASSWORD = process.env.E2E_PASSWORD ?? 'change-me-in-dev'
+const DEV_EMAIL = process.env.E2E_EMAIL ?? 'darth.vader@pactum.local'
+const DEV_PASSWORD = process.env.E2E_PASSWORD ?? 'i-am-your-father'
 
 async function login(page: import('@playwright/test').Page): Promise<void> {
     await page.goto('/login')

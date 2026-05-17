@@ -126,8 +126,8 @@ A spec `tests/e2e/contrato.spec.ts` cobre o fluxo crítico:
 
 Credenciais usadas (`DevTokenSeeder`):
 
-- email: `dev@pactum.local`
-- senha: `change-me-in-dev`
+- email: `darth.vader@pactum.local`
+- senha: `i-am-your-father`
 
 Por padrão o Playwright sobe seu próprio Vite em `http://localhost:5173`
 (`webServer` no `playwright.config.ts`) e faz as chamadas HTTP para a API
