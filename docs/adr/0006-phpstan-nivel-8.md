@@ -1,7 +1,7 @@
 # 0006 - PHPStan nível 8
 
 **Status**: Aceita
-**Data**: 2026-05-14
+**Data**: 2026-05-17
 
 ## Contexto
 

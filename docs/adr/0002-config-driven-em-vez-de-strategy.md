@@ -1,7 +1,7 @@
 # 0002 - Config-driven em vez de Strategy Pattern para Descontos
 
 **Status**: Aceita
-**Data**: 2026-05-15
+**Data**: 2026-05-17
 
 ## Contexto
 

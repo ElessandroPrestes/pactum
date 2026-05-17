@@ -1,7 +1,7 @@
 # 0001 - Usar Repository Pattern com Eloquent
 
 **Status**: Aceita
-**Data**: 2026-05-14
+**Data**: 2026-05-17
 
 ## Contexto
 

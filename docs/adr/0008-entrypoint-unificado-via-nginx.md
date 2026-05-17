@@ -1,14 +1,14 @@
 # 0008 - Entrypoint unificado: nginx serve SPA e API na mesma origem
 
 **Status**: Aceita
-**Data**: 2026-05-16
+**Data**: 2026-05-17
 
 ## Contexto
 
-A fase 9 do CLAUDE.md entrega a SPA Vue 3 + Vite, e o `docker-compose.yml` da
-fase 9.2 expôs **duas portas para o desenvolvedor**: `APP_PORT` (Laravel via
-nginx, default `8000`) e `FRONTEND_PORT` (Vite dev server, default `5173`).
-Esse modelo "duas portas" tem custos:
+A entrega da SPA Vue 3 + Vite trouxe, no `docker-compose.yml` original, **duas
+portas expostas ao desenvolvedor**: `APP_PORT` (Laravel via nginx, default
+`8000`) e `FRONTEND_PORT` (Vite dev server, default `5173`). Esse modelo "duas
+portas" tem custos:
 
 1. **CORS obrigatório.** Toda chamada do navegador para a API atravessa
    cross-origin, exige preflight `OPTIONS` em mutations e exige manutenção

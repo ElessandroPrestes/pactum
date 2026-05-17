@@ -1,7 +1,7 @@
 # 0005 - Tabela de histórico em vez de Event Sourcing
 
 **Status**: Aceita
-**Data**: 2026-05-15
+**Data**: 2026-05-17
 
 ## Contexto
 

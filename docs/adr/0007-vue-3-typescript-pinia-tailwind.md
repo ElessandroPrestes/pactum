@@ -1,13 +1,13 @@
 # 0007 - Stack frontend: Vue 3 + TypeScript + Pinia + Tailwind
 
 **Status**: Aceita
-**Data**: 2026-05-16
+**Data**: 2026-05-17
 
 ## Contexto
 
-O CLAUDE.md (seção 2) define Vue.js como framework do frontend, e a fase 9 do
-plano entrega uma SPA que consome `/api/v1`. As decisões abaixo se desdobram
-dessa escolha base:
+O requisito do projeto é entregar uma SPA que consome `/api/v1` usando
+**Vue.js** como framework (preferência registrada no escopo do produto). As
+decisões abaixo se desdobram dessa escolha base:
 
 1. **Vue 2 vs Vue 3.** Vue 2 sai de suporte oficial em 2023; novos projetos não
    têm justificativa para começar nele. Vue 3 traz Composition API,
@@ -82,8 +82,8 @@ Camadas no frontend espelham o backend:
 
 ## Alternativas consideradas
 
-- **React + Next.js**: descartado por não cumprir o requisito explícito do
-  CLAUDE.md de usar Vue. Mesmo se permitido, traria SSR não necessário no
+- **React + Next.js**: descartado por não cumprir o requisito explícito de
+  usar Vue como framework. Mesmo se permitido, traria SSR não necessário no
   escopo (SPA sem requisito de SEO).
 - **Nuxt** (Vue + SSR + file-based routing): descartado pelo mesmo motivo — a
   SPA não precisa de SSR, e Nuxt adiciona convenções que valem mais em apps

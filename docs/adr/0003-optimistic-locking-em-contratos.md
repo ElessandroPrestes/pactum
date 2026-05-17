@@ -1,7 +1,7 @@
 # 0003 - Optimistic Locking em Contratos
 
 **Status**: Aceita
-**Data**: 2026-05-15
+**Data**: 2026-05-17
 
 ## Contexto
 
