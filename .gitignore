@@ -7,6 +7,7 @@
 /storage/pail
 /storage/phpstan
 /storage/infection
+/storage/api-docs
 /vendor
 .env
 .env.backup
