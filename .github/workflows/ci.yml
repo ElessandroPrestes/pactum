@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -31,7 +31,7 @@ jobs:
     name: Lint e analise estatica
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Configura PHP
         uses: shivammathur/setup-php@v2
@@ -83,7 +83,7 @@ jobs:
           --health-timeout=5s
           --health-retries=10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Configura PHP
         uses: shivammathur/setup-php@v2
@@ -150,7 +150,7 @@ jobs:
           --health-timeout=5s
           --health-retries=10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Configura PHP
         uses: shivammathur/setup-php@v2
@@ -195,7 +195,7 @@ jobs:
     name: Scan de vulnerabilidades
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Trivy filesystem scan
         uses: aquasecurity/trivy-action@v0.36.0
@@ -220,7 +220,7 @@ jobs:
     name: Build Docker target prod
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Configura Docker Buildx
         uses: docker/setup-buildx-action@v3
