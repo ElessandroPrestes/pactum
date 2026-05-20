@@ -1,0 +1,35 @@
+#!/usr/bin/env sh
+set -eu
+
+script_dir="$(CDPATH= cd -- "$(dirname "$0")" && pwd)"
+project_root="$(cd "${script_dir}/.." && pwd)"
+junit_path=""
+next_arg_is_junit_path=0
+
+for arg in "$@"; do
+    if [ "${next_arg_is_junit_path}" -eq 1 ]; then
+        junit_path="${arg}"
+        next_arg_is_junit_path=0
+        continue
+    fi
+
+    case "${arg}" in
+        --log-junit=*)
+            junit_path="${arg#--log-junit=}"
+            ;;
+        --log-junit)
+            next_arg_is_junit_path=1
+            ;;
+    esac
+done
+
+set +e
+"${project_root}/vendor/bin/pest" "$@"
+status=$?
+set -e
+
+if [ "${status}" -eq 0 ] && [ -n "${junit_path}" ] && [ -f "${junit_path}" ]; then
+    php "${project_root}/tools/normalize-pest-junit-for-infection.php" "${junit_path}" "${project_root}"
+fi
+
+exit "${status}"
