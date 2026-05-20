@@ -26,7 +26,7 @@ XML);
         ]);
         $process->mustRun();
 
-        $dom = new DOMDocument();
+        $dom = new DOMDocument;
         $dom->load($junitPath);
         $xpath = new DOMXPath($dom);
 

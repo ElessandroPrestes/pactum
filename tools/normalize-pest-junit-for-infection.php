@@ -15,7 +15,7 @@ if (! is_file($junitPath)) {
     exit(1);
 }
 
-$dom = new DOMDocument();
+$dom = new DOMDocument;
 $dom->preserveWhiteSpace = false;
 $dom->formatOutput = true;
 
